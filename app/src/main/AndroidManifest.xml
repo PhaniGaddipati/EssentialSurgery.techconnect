@@ -32,6 +32,10 @@
             android:name=".activities.ImageViewActivity"
             android:label="Image"
             android:theme="@style/Theme.Transparent" />
+        <activity
+            android:name=".activities.IntroTutorial"
+            android:label="@string/title_activity_intro_tutorial"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
