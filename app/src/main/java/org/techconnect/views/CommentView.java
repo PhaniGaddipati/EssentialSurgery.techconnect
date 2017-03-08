@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.misc.Utils;
 import org.techconnect.model.Comment;
 

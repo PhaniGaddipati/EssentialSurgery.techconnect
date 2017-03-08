@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.model.session.Session;
 

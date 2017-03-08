@@ -22,7 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.activities.SessionListActivity;
 import org.techconnect.adapters.CategoryListAdapter;
 import org.techconnect.asynctasks.ExportHistoryAsyncTask;

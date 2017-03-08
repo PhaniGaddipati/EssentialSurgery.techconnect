@@ -11,7 +11,7 @@ import com.github.barteksc.pdfviewer.ScrollBar;
 import com.github.barteksc.pdfviewer.exception.FileNotFoundException;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 
 import java.io.File;
 import java.net.MalformedURLException;

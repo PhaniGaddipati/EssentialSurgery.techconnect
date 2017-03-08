@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.model.Commentable;
 
 import java.util.ArrayList;

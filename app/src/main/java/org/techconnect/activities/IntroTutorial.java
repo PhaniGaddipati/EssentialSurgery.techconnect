@@ -9,7 +9,7 @@ import android.view.WindowManager;
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 
 public class IntroTutorial extends AppIntro {

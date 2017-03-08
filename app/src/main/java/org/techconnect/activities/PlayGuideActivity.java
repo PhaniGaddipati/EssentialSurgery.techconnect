@@ -17,7 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.dialogs.GuideFeedbackDialogFragment;
 import org.techconnect.model.FlowChart;

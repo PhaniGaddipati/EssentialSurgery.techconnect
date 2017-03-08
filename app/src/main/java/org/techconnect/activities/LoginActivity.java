@@ -26,7 +26,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.misc.auth.AuthManager;
 import org.techconnect.model.User;

@@ -6,7 +6,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

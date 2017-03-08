@@ -9,7 +9,7 @@ import android.text.InputType;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 
 /**
  * Created by Phani on 11/13/2016.

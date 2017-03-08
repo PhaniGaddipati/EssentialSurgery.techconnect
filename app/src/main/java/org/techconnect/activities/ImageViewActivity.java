@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 
 import java.io.File;
 import java.io.IOException;

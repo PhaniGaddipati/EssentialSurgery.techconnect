@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.sql.TCDatabaseHelper;
 import org.techconnect.views.SessionListItemView;
 

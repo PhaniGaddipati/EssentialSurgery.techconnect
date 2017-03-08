@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.activities.PDFActivity;
 import org.techconnect.misc.ResourceHandler;
 import org.techconnect.misc.Utils;

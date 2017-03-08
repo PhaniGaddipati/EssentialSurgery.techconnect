@@ -16,7 +16,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.activities.GuideActivity;
 import org.techconnect.activities.MainActivity;
 import org.techconnect.adapters.FlowchartAdapter;

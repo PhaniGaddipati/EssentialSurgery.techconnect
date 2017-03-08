@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.views.CategoryListItemView;
 
 import java.util.Iterator;

@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.activities.ImageViewActivity;
 import org.techconnect.misc.ResourceHandler;
 import org.techconnect.model.Vertex;

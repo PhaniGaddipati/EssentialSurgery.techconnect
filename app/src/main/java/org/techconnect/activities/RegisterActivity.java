@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.asynctasks.RegisterAsyncTask;
 import org.techconnect.model.User;

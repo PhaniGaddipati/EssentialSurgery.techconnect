@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.model.FlowChart;
 import org.techconnect.views.GuideListItemView;
 

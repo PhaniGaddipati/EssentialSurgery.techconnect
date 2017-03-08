@@ -9,7 +9,7 @@ import android.os.ResultReceiver;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.misc.ResourceHandler;
 import org.techconnect.model.FlowChart;

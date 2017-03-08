@@ -26,7 +26,7 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.asynctasks.PostVoteAsyncTask;
 import org.techconnect.asynctasks.UpdateUserAsyncTask;

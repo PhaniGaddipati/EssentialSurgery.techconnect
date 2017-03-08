@@ -18,7 +18,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.activities.ProfileActivity;
 import org.techconnect.adapters.UserListAdapter;
 import org.techconnect.asynctasks.SearchUsersAsyncTask;

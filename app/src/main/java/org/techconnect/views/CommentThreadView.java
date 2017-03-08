@@ -10,7 +10,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.centum.techconnect.R;
+import org.techconnect.R;
 import org.techconnect.asynctasks.PostCommentAsyncTask;
 import org.techconnect.misc.auth.AuthManager;
 import org.techconnect.model.Comment;
