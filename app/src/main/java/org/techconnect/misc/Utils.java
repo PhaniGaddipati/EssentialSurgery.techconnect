@@ -54,6 +54,10 @@ public class Utils {
         return m_ISO8601Local.parse(date);
     }
 
+    public static String formatTimeMillis(long time) {
+        return m_ISO8601Local.format(new Date(time));
+    }
+
     public static String formatAttachmentName(String att) {
         String name = att.substring(att.lastIndexOf("/") + 1);
         if (name.contains("?")) {

@@ -8,7 +8,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import org.centum.techconnect.R;
-import org.techconnect.model.Comment;
+import org.techconnect.model.Commentable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +30,10 @@ public class CommentsResourcesTabbedView extends LinearLayout implements TabLayo
     private CommentThreadView commentThreadView;
     private ResourcesView resourcesView;
 
-    private List<Comment> comments = new ArrayList<>(0);
+    private Commentable commentable;
     private List<String> resources = new ArrayList<>(0);
+
+    private String chartId;
 
     public CommentsResourcesTabbedView(Context context) {
         super(context);
@@ -45,9 +47,11 @@ public class CommentsResourcesTabbedView extends LinearLayout implements TabLayo
         super(context, attrs, defStyleAttr);
     }
 
-    public void setItems(List<Comment> comments, List<String> resources) {
-        this.comments = comments;
+
+    public void setItems(Commentable commentable, List<String> resources, String chartId) {
+        this.commentable = commentable;
         this.resources = resources;
+        this.chartId = chartId;
         updateViews();
     }
 
@@ -55,11 +59,11 @@ public class CommentsResourcesTabbedView extends LinearLayout implements TabLayo
         tabContentContainer.removeAllViews();
         commentThreadView = (CommentThreadView) LayoutInflater.from(getContext()).inflate(R.layout.comment_thread_view, tabContentContainer, false);
         resourcesView = (ResourcesView) LayoutInflater.from(getContext()).inflate(R.layout.resources_view, tabContentContainer, false);
-        commentThreadView.setComments(comments);
+        commentThreadView.setComments(chartId, commentable);
         resourcesView.setResources(resources);
         tabContentContainer.addView(commentThreadView);
         tabLayout.addOnTabSelectedListener(this);
-        if (comments.size() == 0) {
+        if (commentable.getComments().size() == 0 && resources.size() > 0) {
             // Show resources
             tabLayout.getTabAt(1).select();
         }

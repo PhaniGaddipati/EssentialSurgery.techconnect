@@ -2,6 +2,7 @@ package org.techconnect.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import org.techconnect.misc.Utils;
 
@@ -40,9 +41,13 @@ public class Graph implements Parcelable {
         //Iterate over the edges and add the edges to the respective in and out
         //lists in the vertices
         for (Edge e : E) {
-            edges.put(e.getId(), e);
-            vertices.get(e.getOutV()).addOutEdge(e.getId());
-            vertices.get(e.getInV()).addInEdge(e.getId());
+            if (vertices.containsKey(e.getInV()) && vertices.containsKey(e.getOutV())) {
+                edges.put(e.getId(), e);
+                vertices.get(e.getOutV()).addOutEdge(e.getId());
+                vertices.get(e.getInV()).addInEdge(e.getId());
+            } else {
+                Log.e(getClass().getName(), "Edge with nonexistant nodes: " + e.getInV() + " or " + e.getOutV());
+            }
         }
 
         //Set the root ID in order for it to be readily accessible, as well as ID and Owner

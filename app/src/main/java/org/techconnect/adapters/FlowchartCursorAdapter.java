@@ -29,7 +29,7 @@ public class FlowchartCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         GuideListItemView listItemView = ((GuideListItemView) view);
-        listItemView.setFlowChart(TCDatabaseHelper.get(context).getChartFromCursor(cursor));
+        listItemView.setFlowChart(TCDatabaseHelper.get(context).getChartStubFromCursor(cursor));
     }
 
 

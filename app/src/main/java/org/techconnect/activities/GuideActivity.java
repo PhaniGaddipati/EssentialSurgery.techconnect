@@ -1,62 +1,73 @@
 package org.techconnect.activities;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
 import org.centum.techconnect.R;
+import org.techconnect.analytics.FirebaseEvents;
+import org.techconnect.asynctasks.PostVoteAsyncTask;
+import org.techconnect.asynctasks.UpdateUserAsyncTask;
 import org.techconnect.misc.ResourceHandler;
+import org.techconnect.misc.auth.AuthManager;
 import org.techconnect.model.FlowChart;
+import org.techconnect.model.User;
 import org.techconnect.services.TCService;
 import org.techconnect.sql.TCDatabaseHelper;
 import org.techconnect.views.CommentsResourcesTabbedView;
+import org.techconnect.views.ThumbFeedbackView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class GuideActivity extends AppCompatActivity {
+public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-    public static String EXTRA_CHART = "org.techconnect.guideactivity.flowchart";
+    public static final String EXTRA_CHART = "org.techconnect.guideactivity.flowchart";
+    public static final String EXTRA_USER = "org.techconnect.guideactivity.user";
+    public static final String EXTRA_ALLOW_REFRESH = "org.techconnect.guideactivity.allow_refresh";
 
-    @Bind(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
+    //Request types
+    private static final int LOGIN_REQUEST = 0;
+
     @Bind(R.id.content_linearLayout)
     LinearLayout contentLinearLayout;
-    @Bind(R.id.download_fab)
-    FloatingActionButton fab;
+    @Bind(R.id.button)
+    Button button;
     @Bind(R.id.header_imageView)
     ImageView headerImageView;
-    @Bind(R.id.nestedScrollView)
-    NestedScrollView nestedScrollView;
-    @Bind(R.id.type_textView)
-    TextView typeTextView;
-    @Bind(R.id.score_textView)
-    TextView scoreTextView;
-    @Bind(R.id.version_textView)
-    TextView versionTextView;
+    @Bind(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.description_textView)
     TextView descriptionTextView;
-    @Bind(R.id.update_TextView)
-    TextView updateTextView;
-
+    @Bind(R.id.scrollView)
+    ScrollView scrollView;
     CommentsResourcesTabbedView commentsResourcesTabbedView;
+    ThumbFeedbackView thumbFeedbackView;
     private FlowChart flowChart;
+    private User user;
     private boolean inDB = true;
     private boolean downloadingChart = false;
 
@@ -65,18 +76,62 @@ public class GuideActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guide);
         ButterKnife.bind(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         commentsResourcesTabbedView = (CommentsResourcesTabbedView) getLayoutInflater()
                 .inflate(R.layout.comments_resources_tabbed_view, contentLinearLayout, false);
-        contentLinearLayout.addView(commentsResourcesTabbedView);
 
+        thumbFeedbackView = (ThumbFeedbackView) getLayoutInflater().inflate(R.layout.view_thumbfeedback,contentLinearLayout,false);
+
+
+        //Add Thumb up/down view prior to the tabbed view
+        contentLinearLayout.addView(thumbFeedbackView);
+        View ruler = new View(this);
+        ruler.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+        contentLinearLayout.addView(ruler,
+                new ViewGroup.LayoutParams( ViewGroup.LayoutParams.FILL_PARENT, 2));
+        contentLinearLayout.addView(commentsResourcesTabbedView);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                if (scrollView.getScrollY() == 0) {
+                    swipeRefreshLayout.setEnabled(true);
+                } else {
+                    swipeRefreshLayout.setEnabled(false);
+                }
+            }
+        });
         if (getIntent() != null && getIntent().hasExtra(EXTRA_CHART)) {
             flowChart = getIntent().getParcelableExtra(EXTRA_CHART);
+            FirebaseEvents.logViewGuide(this, flowChart);
             checkDBForFlowchart();
         }
+        if (getIntent() != null && getIntent().hasExtra(EXTRA_ALLOW_REFRESH)) {
+            swipeRefreshLayout.setEnabled(getIntent().getBooleanExtra(EXTRA_ALLOW_REFRESH, true));
+        }
+
+        if (getIntent() != null && getIntent().hasExtra(EXTRA_USER)) {
+            user = getIntent().getParcelableExtra(EXTRA_USER);
+            thumbFeedbackView.setActive(true);
+            if (user.hasUpVoted(flowChart.getId())) {
+                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_UP);
+            } else if (user.hasDownVoted(flowChart.getId())) {
+                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_DOWN);
+            } else {
+                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_NEUTRAL);
+            }
+        } else {
+            thumbFeedbackView.setActive(false);
+            user = null;//confirm that it is null
+        }
+
+
+        //Use the flowchart to determine the number of up vs. down votes
+        thumbFeedbackView.setUpCount(flowChart.getUpvotes());
+        thumbFeedbackView.setDownCount(flowChart.getDownvotes());
     }
 
     private void checkDBForFlowchart() {
@@ -89,21 +144,14 @@ public class GuideActivity extends AppCompatActivity {
         updateViews();
     }
 
-    @OnClick(R.id.download_fab)
+    @OnClick(R.id.button)
     protected void onFabAction() {
         if (!downloadingChart) {
             if (inDB) {
                 onPlay();
             } else {
-                reloadChart();
+                onRefresh();
             }
-        }
-    }
-
-    @OnClick(R.id.update_TextView)
-    protected void onUpdate() {
-        if (!downloadingChart && inDB) {
-            reloadChart();
         }
     }
 
@@ -112,17 +160,14 @@ public class GuideActivity extends AppCompatActivity {
             setTitle(flowChart.getName());
         }
         if (inDB) {
-            fab.setImageResource(R.drawable.ic_play_arrow_white_48dp);
-            updateTextView.setVisibility(View.VISIBLE);
+            button.setText(R.string.start_session);
         } else {
-            fab.setImageResource(R.drawable.ic_file_download_white_48dp);
-            updateTextView.setVisibility(View.GONE);
+            button.setText(R.string.download);
         }
-        typeTextView.setText(flowChart.getType().toString().toLowerCase());
-        scoreTextView.setText(flowChart.getScore() + "");
-        versionTextView.setText(flowChart.getVersion());
         descriptionTextView.setText(flowChart.getDescription());
-        commentsResourcesTabbedView.setItems(flowChart.getComments(), flowChart.getResources());
+        commentsResourcesTabbedView.setItems(flowChart, flowChart.getResources(), flowChart.getId());
+        thumbFeedbackView.setUpCount(flowChart.getUpvotes());
+        thumbFeedbackView.setDownCount(flowChart.getDownvotes());
         updateHeaderImage();
     }
 
@@ -132,38 +177,18 @@ public class GuideActivity extends AppCompatActivity {
                 // Load offline image
                 Picasso.with(this)
                         .load(getFileStreamPath(
-                                ResourceHandler.get().getStringResource(flowChart.getImage())))
+                                ResourceHandler.get(this).getStringResource(flowChart.getImage())))
+                        .placeholder(R.drawable.progress_animation)
                         .into(headerImageView);
             } else {
                 // Load online image
                 Picasso.with(this)
                         .load(flowChart.getImage())
+                        .placeholder(R.drawable.progress_animation)
                         .into(headerImageView);
             }
-        }
-    }
-
-    private void reloadChart() {
-        if (flowChart != null) {
-            downloadingChart = true;
-            fab.setImageResource(R.drawable.ic_sync_white_48dp);
-            fab.setEnabled(false);
-            updateTextView.setEnabled(false);
-            TCService.startLoadCharts(this, new String[]{flowChart.getId()}, new ResultReceiver(new Handler()) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    super.onReceiveResult(resultCode, resultData);
-                    downloadingChart = false;
-                    fab.setEnabled(true);
-                    updateTextView.setEnabled(true);
-                    checkDBForFlowchart();
-                    if (resultCode == TCService.LOAD_CHARTS_RESULT_SUCCESS) {
-                        Snackbar.make(coordinatorLayout, getString(R.string.guide_updated), Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        Snackbar.make(coordinatorLayout, getString(R.string.fail_update_guide), Snackbar.LENGTH_SHORT).show();
-                    }
-                }
-            });
+        } else {
+            headerImageView.setVisibility(View.GONE);
         }
     }
 
@@ -188,12 +213,198 @@ public class GuideActivity extends AppCompatActivity {
     @OnClick(R.id.header_imageView)
     protected void onHeaderImageAction() {
         Intent intent = new Intent(this, ImageViewActivity.class);
-        if (ResourceHandler.get().hasStringResource(flowChart.getImage())) {
+        if (ResourceHandler.get(this).hasStringResource(flowChart.getImage())) {
             intent.putExtra(ImageViewActivity.EXTRA_PATH, getFileStreamPath(
-                    ResourceHandler.get().getStringResource(flowChart.getImage())).getAbsolutePath());
+                    ResourceHandler.get(this).getStringResource(flowChart.getImage())).getAbsolutePath());
         } else {
             intent.putExtra(ImageViewActivity.EXTRA_URL, flowChart.getImage());
         }
         startActivity(intent);
+    }
+
+    @Override
+    public void onRefresh() {
+        if (flowChart != null && !downloadingChart) {
+            swipeRefreshLayout.setRefreshing(true);
+            downloadingChart = true;
+            button.setText(R.string.updating);
+            button.setEnabled(false);
+            TCService.startLoadCharts(this, new String[]{flowChart.getId()}, new ResultReceiver(new Handler()) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    super.onReceiveResult(resultCode, resultData);
+                    downloadingChart = false;
+                    button.setEnabled(true);
+                    checkDBForFlowchart();
+                    swipeRefreshLayout.setRefreshing(false);
+                    updateViews();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //Check to see if login status has changed, update Feedback bar approprioately
+        if (AuthManager.get(this).hasAuth()) {
+            thumbFeedbackView.setActive(true);
+            if (user.hasUpVoted(flowChart.getId())) {
+                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_UP);
+            } else if (user.hasDownVoted(flowChart.getId())) {
+                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_DOWN);
+            } else {
+                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_NEUTRAL);
+            }
+        }
+        updateViews();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("Guide Activity", "Pause");
+        //Check to see whether the chart feedback changed during activity and update server
+        //Use TCNetworkHelper.postFeedback(flowchart.getId(), vote, AuthManager.get(this).getAuth())
+        // to post feedback. This function is likely going to change as we update the endpoints
+
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork != null &&  activeNetwork.isConnectedOrConnecting()) {
+            if (user != null) {
+                //We try to update the user in the cloud, only if it succeeds do we update user locally
+                new UpdateUserAsyncTask(this) {
+                    @Override
+                    protected void onPostExecute(User u) {
+                        if (u != null) {
+                            TCDatabaseHelper.get(getBaseContext()).upsertUser(user);
+                        }
+                    }
+                }.execute(user);
+
+                //Followed by updating the chart
+                Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", flowChart.getUpvotes(), flowChart.getDownvotes()));
+                switch (thumbFeedbackView.getCurrentState()) {
+                    case ThumbFeedbackView.STATE_UP:
+                        new PostVoteAsyncTask(flowChart.getId(), "true", AuthManager.get(this).getAuth(), false) {
+                            @Override
+                            protected void onPostExecute(FlowChart chart) {
+                                if (chart != null) {
+                                    //Update the local copy
+                                    TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
+                                    Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
+                                } else {
+                                    //Error in posting feedback
+                                    Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }.execute();
+                        break;
+                    case ThumbFeedbackView.STATE_DOWN:
+                        new PostVoteAsyncTask(flowChart.getId(), "false", AuthManager.get(this).getAuth(), false) {
+                            @Override
+                            protected void onPostExecute(FlowChart chart) {
+                                if (chart != null) {
+                                    //Update the local copy
+                                    TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
+                                    Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
+                                } else {
+                                    //Error in posting feedback
+                                    Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }.execute();
+                        break;
+                    case ThumbFeedbackView.STATE_NEUTRAL:
+                        new PostVoteAsyncTask(flowChart.getId(), "empty", AuthManager.get(this).getAuth(), true) {
+                            @Override
+                            protected void onPostExecute(FlowChart chart) {
+                                if (chart != null) {
+                                    //Update the local copy
+                                    TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
+                                    Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
+                                } else {
+                                    //Error in posting feedback
+                                    Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }.execute();
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Use this method to handle clicks of the buttons in the ThumbFeedbackView
+     * @param view
+     */
+    public void onFeedbackClick(View view) {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        // Need a network connection to even post feedback
+        if (activeNetwork != null &&  activeNetwork.isConnectedOrConnecting()) {
+            if (thumbFeedbackView.isActive()) {
+                if (view.getId() == R.id.upThumbButton) {
+                    user.upVote(flowChart.getId());
+                    thumbFeedbackView.upVote();
+                } else if (view.getId() == R.id.downThumbButton) {
+                    user.downVote(flowChart.getId());
+                    thumbFeedbackView.downVote();
+                }
+            } else {
+                Log.d("Guide Activity", "Would activate alert dialog");
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Please Sign in to Vote");
+                builder.setPositiveButton(R.string.action_sign_in, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(GuideActivity.this, LoginActivity.class);
+                        startActivityForResult(intent,LOGIN_REQUEST);
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.create().show();
+            }
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Please Connect to Internet to Vote");
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.create().show();
+        }
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == LOGIN_REQUEST) {
+            if (resultCode == LoginActivity.LOGIN_SUCCESS) {
+                //Need to update the user so it's no longer null
+                setUser((User) data.getParcelableExtra(EXTRA_USER));
+            }
+            //In theory, do not need to send another message that login failed
+        }
     }
 }

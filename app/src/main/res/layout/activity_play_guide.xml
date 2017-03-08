@@ -9,7 +9,9 @@
     <FrameLayout
         android:id="@+id/flowContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"/>
 
     <ScrollView
         android:id="@+id/session_info_layout"
@@ -55,12 +57,30 @@
                 android:textColorHint="?android:attr/textColorHint">
 
                 <EditText
+                    android:id="@+id/manufacturer_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/manufacturer"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="?android:attr/colorForeground"
+                    android:textSize="16sp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColorHint="?android:attr/textColorHint">
+
+                <EditText
                     android:id="@+id/model_editText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/model_number"
-                    android:inputType="text"
+                    android:inputType="textVisiblePassword"
                     android:maxLines="1"
                     android:textColor="?android:attr/colorForeground"
                     android:textSize="16sp" />
@@ -77,7 +97,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/serial_number"
-                    android:inputType="text"
+                    android:inputType="textVisiblePassword"
                     android:maxLines="1"
                     android:textColor="?android:attr/colorForeground"
                     android:textSize="16sp" />

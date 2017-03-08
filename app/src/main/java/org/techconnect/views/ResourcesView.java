@@ -73,8 +73,10 @@ public class ResourcesView extends LinearLayout {
     private void openAttachment(String att) {
         Intent intent = new Intent(getContext(), PDFActivity.class);
         intent.putExtra(PDFActivity.EXTRA_IS_FILE, true);
-        if (ResourceHandler.get().hasStringResource(att)) {
-            intent.putExtra(PDFActivity.EXTRA_FILE, getContext().getFileStreamPath(ResourceHandler.get().getStringResource(att)).getAbsolutePath());
+        if (ResourceHandler.get(getContext()).hasStringResource(att)) {
+            intent.putExtra(PDFActivity.EXTRA_FILE, getContext()
+                    .getFileStreamPath(ResourceHandler.get(getContext()).getStringResource(att))
+                    .getAbsolutePath());
         } else {
             intent.putExtra(PDFActivity.EXTRA_FILE, "");
         }

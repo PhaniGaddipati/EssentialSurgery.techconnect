@@ -9,7 +9,7 @@ import java.util.List;
  * Created by Phani on 10/26/2016.
  */
 
-public class User implements Parcelable {
+public class User implements Parcelable, Cloneable {
 
     public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
@@ -28,7 +28,10 @@ public class User implements Parcelable {
     private String countryCode;
     private String country;
     private String organization;
+    private String pic;
     private List<String> expertises;
+    private List<String> upCharts;
+    private List<String> downCharts;
 
     public User() {
     }
@@ -40,7 +43,50 @@ public class User implements Parcelable {
         countryCode = in.readString();
         country = in.readString();
         organization = in.readString();
+        pic = in.readString();
         expertises = in.createStringArrayList();
+        upCharts = in.createStringArrayList();
+        downCharts = in.createStringArrayList();
+}
+
+    //Methods to determine if user likes a chart
+    public boolean hasUpVoted(String id) {
+        return upCharts.contains(id);
+    }
+
+    public boolean hasDownVoted(String id) {
+        return downCharts.contains(id);
+    }
+
+    //Methods to up or downvote
+    public boolean upVote(String id) {
+        if (!upCharts.contains(id) && downCharts.contains(id)) {
+            upCharts.add(id);
+            downCharts.remove(id);
+            return true;
+        } else if (!upCharts.contains(id) && !downCharts.contains(id)) {
+            upCharts.add(id);
+            return true;
+        } else if (upCharts.contains(id)) {
+            upCharts.remove(id);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean downVote(String id) {
+        if (upCharts.contains(id) && !downCharts.contains(id)) {
+            upCharts.remove(id);
+            downCharts.add(id);
+            return true;
+        } else if (!upCharts.contains(id) && !downCharts.contains(id)) {
+            downCharts.add(id);
+            return true;
+        } else if (downCharts.contains(id)) {
+            downCharts.remove(id);
+            return true;
+        }
+        return false;
     }
 
     public String get_id() {
@@ -99,10 +145,36 @@ public class User implements Parcelable {
         this.expertises = expertises;
     }
 
+    public String getPic() {
+        return pic;
+    }
+
+    public void setPic(String pic) {
+        this.pic = pic;
+    }
+
     @Override
     public int describeContents() {
         return 0;
     }
+
+    @Override
+    public User clone() throws CloneNotSupportedException {
+        super.clone(); //Do I need this?
+        User new_user = new User();
+        new_user.set_id(this.get_id());
+        new_user.setEmail(this.getEmail());
+        new_user.setExpertises(this.getExpertises());
+        new_user.setUpCharts(this.getUpCharts());
+        new_user.setDownCharts(this.getDownCharts());
+        new_user.setCountry(this.getCountry());
+        new_user.setCountryCode(this.getCountryCode());
+        new_user.setName(this.getName());
+        new_user.setOrganization(this.getOrganization());
+
+        return new_user;
+    }
+
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
@@ -112,6 +184,25 @@ public class User implements Parcelable {
         parcel.writeString(countryCode);
         parcel.writeString(country);
         parcel.writeString(organization);
+        parcel.writeString(pic);
         parcel.writeStringList(expertises);
+        parcel.writeStringList(upCharts);
+        parcel.writeStringList(downCharts);
+    }
+
+    public List<String> getUpCharts() {
+        return upCharts;
+    }
+
+    public void setUpCharts(List<String> upCharts) {
+        this.upCharts = upCharts;
+    }
+
+    public List<String> getDownCharts() {
+        return downCharts;
+    }
+
+    public void setDownCharts(List<String> downCharts) {
+        this.downCharts = downCharts;
     }
 }

@@ -2,6 +2,7 @@ package org.techconnect.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,6 +22,8 @@ import butterknife.ButterKnife;
 
 public class CommentView extends LinearLayout {
 
+    @Bind(R.id.profilePic)
+    ImageView profilePicImageView;
     @Bind(R.id.author_textView)
     TextView authorTextView;
     @Bind(R.id.post_date_textView)
@@ -67,6 +70,7 @@ public class CommentView extends LinearLayout {
                 e.printStackTrace();
             }
         }
+
     }
 
     @Override

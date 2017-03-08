@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -37,6 +38,8 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
     TextView descriptionTextView;
     @Bind(R.id.downloadImageView)
     ImageView downloadImageView;
+    @Bind(R.id.downloadProgressBar)
+    ProgressBar downloadProgressBar;
 
     private FlowChart flowChart = null;
     private boolean showDownload = false;
@@ -67,11 +70,13 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
     private void updateViews() {
         downloadImageView.setOnClickListener(null);
         downloadImageView.setVisibility(GONE);
+        downloadProgressBar.setVisibility(GONE);
         if (this.flowChart == null) {
             nameTextView.setText("");
             descriptionTextView.setText("");
             Picasso.with(getContext())
                     .load(R.drawable.flowchart_icon)
+                    .fit()
                     .transform(new CircleTransform())
                     .into(guideImageView);
         } else {
@@ -82,16 +87,18 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
                 if (TCDatabaseHelper.get(getContext()).getChart(flowChart.getId()) == null) {
                     downloadImageView.setImageResource(R.drawable.ic_file_download_black_48dp);
                 } else {
+                    downloadImageView.setOnClickListener(null);
                     downloadImageView.setImageResource(R.drawable.ic_done_black_48dp);
                 }
                 downloadImageView.setOnClickListener(this);
             }
             if (flowChart.getImage() != null && !TextUtils.isEmpty(flowChart.getImage())) {
-                if (ResourceHandler.get().hasStringResource(flowChart.getImage())) {
+                if (ResourceHandler.get(getContext()).hasStringResource(flowChart.getImage())) {
                     // Load offline image
                     Picasso.with(getContext())
                             .load(getContext().getFileStreamPath(
-                                    ResourceHandler.get().getStringResource(flowChart.getImage())))
+                                    ResourceHandler.get(getContext()).getStringResource(flowChart.getImage())))
+                            .fit()
                             .error(R.drawable.flowchart_icon)
                             .transform(new CircleTransform())
                             .into(guideImageView);
@@ -99,6 +106,7 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
                     // Try to load from online
                     Picasso.with(getContext())
                             .load(flowChart.getImage())
+                            .fit()
                             .error(R.drawable.flowchart_icon)
                             .transform(new CircleTransform())
                             .into(guideImageView);
@@ -106,6 +114,7 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
             } else {
                 Picasso.with(getContext())
                         .load(R.drawable.flowchart_icon)
+                        .fit()
                         .transform(new CircleTransform())
                         .into(guideImageView);
             }
@@ -130,7 +139,8 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
 
     private void onDownload() {
         downloadImageView.setOnClickListener(null);
-        downloadImageView.setImageResource(R.drawable.ic_sync_black_48dp);
+        downloadImageView.setVisibility(GONE);
+        downloadProgressBar.setVisibility(VISIBLE);
         TCService.startLoadCharts(getContext(), new String[]{flowChart.getId()}, new ResultReceiver(new Handler()) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {

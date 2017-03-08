@@ -27,6 +27,9 @@ public class FlowChartSerializer implements JsonSerializer<FlowChart> {
 		jsonObject.addProperty("version", flowchart.getVersion());
 		jsonObject.addProperty("owner", flowchart.getOwner());
 		jsonObject.addProperty("score",flowchart.getScore());
+		jsonObject.addProperty("upvotes",flowchart.getUpvotes());
+		jsonObject.addProperty("downvotes",flowchart.getDownvotes());
+
 	
 		//Determine type
 		switch(flowchart.getType()) {
@@ -50,6 +53,15 @@ public class FlowChartSerializer implements JsonSerializer<FlowChart> {
 				comments.add(myGson.toJson(c));
 			}
 			jsonObject.add("comments", comments);
+		}
+
+		//Users
+		final JsonArray users = new JsonArray();
+		if (flowchart.getAllUserIds() != null) {
+			for (String user : flowchart.getAllUserIds()) {
+				users.add(user);
+			}
+			jsonObject.add("all_usr_id", comments);
 		}
 		
 		//Now, we have to convert the TinkerGraph, which is beautiful

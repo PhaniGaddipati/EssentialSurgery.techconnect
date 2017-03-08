@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -18,11 +17,10 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 import org.centum.techconnect.R;
+import org.techconnect.analytics.FirebaseEvents;
+import org.techconnect.asynctasks.RegisterAsyncTask;
 import org.techconnect.model.User;
-import org.techconnect.network.TCNetworkHelper;
 import org.techconnect.sql.TCDatabaseHelper;
-
-import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -31,7 +29,7 @@ import butterknife.OnClick;
 public class RegisterActivity extends AppCompatActivity {
 
     public static final String RESULT_REGISTERED_EMAIL = "org.techconnect.register.result.useremail";
-    public static final String EXTRA_EMAIL = "org.techconnect.register.email";
+    public static final String EXTRA_EMAIL = "org.techconnect.register.emailTextView";
     public static final String EXTRA_PASSWORD = "org.techconnect.register.password";
 
     @Bind(R.id.activity_register)
@@ -65,6 +63,25 @@ public class RegisterActivity extends AppCompatActivity {
         if (getIntent() != null && getIntent().hasExtra(EXTRA_PASSWORD)) {
             passwordEditText.setText(getIntent().getStringExtra(EXTRA_PASSWORD));
         }
+        if (savedInstanceState != null) {
+            nameEditText.setText(savedInstanceState.getString("name"));
+            emailEditText.setText(savedInstanceState.getString("emailTextView"));
+            orgEditText.setText(savedInstanceState.getString("org"));
+            expertisesEditText.setText(savedInstanceState.getString("skills"));
+            passwordEditText.setText(savedInstanceState.getString("password"));
+            confirmPasswordEditText.setText(savedInstanceState.getString("cpassword"));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("name", nameEditText.getText().toString());
+        outState.putString("emailTextView", emailEditText.getText().toString());
+        outState.putString("org", orgEditText.getText().toString());
+        outState.putString("skills", expertisesEditText.getText().toString());
+        outState.putString("password", passwordEditText.getText().toString());
+        outState.putString("cpassword", confirmPasswordEditText.getText().toString());
     }
 
     @OnClick(R.id.register_button)
@@ -78,35 +95,27 @@ public class RegisterActivity extends AppCompatActivity {
             final String password = passwordEditText.getText().toString();
 
             String expertises = expertisesEditText.getText().toString();
-            final String[] expertisesArr;
+            final String[] skillsArr;
             if (TextUtils.isEmpty(expertises.trim())) {
-                expertisesArr = new String[0];
+                skillsArr = new String[0];
             } else {
-                expertisesArr = expertises.split(",");
-                for (int i = 0; i < expertisesArr.length; i++) {
-                    expertisesArr[i] = expertisesArr[i].trim();
+                skillsArr = expertises.split(",");
+                for (int i = 0; i < skillsArr.length; i++) {
+                    skillsArr[i] = skillsArr[i].trim();
                 }
             }
 
-            new AsyncTask<Void, Void, User>() {
-
-                @Override
-                protected User doInBackground(Void... voids) {
-                    try {
-                        return new TCNetworkHelper().register(email, password, locale, name, org, expertisesArr);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }
+            new RegisterAsyncTask(locale, name, email, org, password, skillsArr) {
 
                 @Override
                 protected void onPostExecute(User user) {
                     showProgress(false);
                     if (user == null) {
                         Snackbar.make(coordinatorLayout, R.string.failed_register, Snackbar.LENGTH_LONG).show();
+                        FirebaseEvents.logRegistrationFailed(RegisterActivity.this);
                     } else {
                         // Store the user, probably need it later
+                        FirebaseEvents.logRegistrationSuccess(RegisterActivity.this);
                         TCDatabaseHelper.get(RegisterActivity.this).upsertUser(user);
                         Intent intent = new Intent();
                         intent.putExtra(RESULT_REGISTERED_EMAIL, user.getEmail());
@@ -134,7 +143,6 @@ public class RegisterActivity extends AppCompatActivity {
         String name = nameEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String org = orgEditText.getText().toString();
-        String expertises = expertisesEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         String cPassword = confirmPasswordEditText.getText().toString();
 
@@ -169,13 +177,13 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * Shows the progress_spinner UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
+        // the progress_spinner spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 

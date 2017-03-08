@@ -16,6 +16,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -26,6 +27,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.centum.techconnect.R;
+import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.misc.auth.AuthManager;
 import org.techconnect.model.User;
 import org.techconnect.model.UserAuth;
@@ -39,14 +41,21 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers login via emailTextView/password.
  */
 public class LoginActivity extends AppCompatActivity {
     private static final int REGISTER_REQUEST = 1;
+    //Results
+    public static final int LOGIN_SUCCESS = 2;
+    public static final int LOGIN_FAILURE = 3;
+    public static final String LOGIN_USER = "org.techconnect.login.user";
+
+    //Strings
     private static final String SHOW_SKIP_ALERT = "org.techconnect.login.skipalert";
+
     // UI references.
     @Bind(R.id.email)
-    TextView mEmailView;
+    EditText mEmailView;
     @Bind(R.id.password)
     EditText mPasswordView;
     @Bind(R.id.login_progress)
@@ -61,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
     Button mSkipSigninButton;
     @Bind(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -82,6 +92,47 @@ public class LoginActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        if (savedInstanceState != null) {
+            mEmailView.setText(savedInstanceState.getString("emailTextView"));
+            mPasswordView.setText(savedInstanceState.getString("password"));
+        }
+
+        //Set the enter key of PasswordView to login
+        mPasswordView.setOnEditorActionListener( new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (event==null) {
+                    if (actionId==EditorInfo.IME_ACTION_DONE) {
+                        // Capture soft enters in a singleLine EditText that is the last EditText.
+                        Log.d("Login", "First");
+                        attemptLogin();
+                    } else if (actionId==EditorInfo.IME_ACTION_NEXT) {
+                        // Capture soft enters in other singleLine EditTexts
+                        Log.d("Login", "Second");
+                    } else return false;  // Let system handle all other null KeyEvents
+                }
+                else if (actionId==EditorInfo.IME_NULL) {
+                    // Capture most soft enters in multi-line EditTexts and all hard enters.
+                    // They supply a zero actionId and a valid KeyEvent rather than
+                    // a non-zero actionId and a null event like the previous cases.
+                    if (event.getAction()==KeyEvent.ACTION_DOWN) {
+                        // We capture the event when key is first pressed.
+                        Log.d("Login", "Third");
+                    } else  return true;   // We consume the event when the key is released.
+                }
+                else  return false;
+
+                return true;   // Consume the event
+            }
+        });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("emailTextView", mEmailView.getText().toString());
+        outState.putString("password", mPasswordView.getText().toString());
     }
 
     @Override
@@ -122,6 +173,8 @@ public class LoginActivity extends AppCompatActivity {
                             if (checkBox.isChecked()) {
                                 prefs.edit().putBoolean(SHOW_SKIP_ALERT, false).apply();
                             }
+                            Intent resultIntent = new Intent();
+                            setResult(LOGIN_FAILURE,resultIntent);
                             LoginActivity.this.finish();
                         }
                     })
@@ -132,6 +185,8 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }).show();
         } else {
+            Intent resultIntent = new Intent();
+            setResult(LOGIN_FAILURE,resultIntent);
             LoginActivity.this.finish();
         }
     }
@@ -157,7 +212,7 @@ public class LoginActivity extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid email address & password.
+        // Check for a valid emailTextView address & password.
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             mEmailView.setError(getString(R.string.error_signin_field_required));
             focusView = mEmailView;
@@ -168,7 +223,7 @@ public class LoginActivity extends AppCompatActivity {
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
+            // Show a progress_spinner spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
@@ -177,13 +232,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * Shows the progress_spinner UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
+        // the progress_spinner spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
@@ -232,7 +287,10 @@ public class LoginActivity extends AppCompatActivity {
                 // Login and get user
                 TCNetworkHelper helper = new TCNetworkHelper();
                 UserAuth auth = helper.login(mEmail, mPassword);
-                User user = helper.getUser(auth.getUserId());
+                User user = null;
+                if (auth != null) {
+                    user = helper.getUser(auth.getUserId());
+                }
                 return new Object[]{user, auth};
             } catch (IOException e) {
                 e.printStackTrace();
@@ -242,17 +300,24 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(final Object[] objs) {
-            User user = (User) objs[0];
-            UserAuth auth = (UserAuth) objs[1];
             mAuthTask = null;
             showProgress(false);
-            if (user == null) {
-                mEmailView.setError(getString(R.string.error_incorrect_signin));
+            if (objs[0] == null) {
+                Snackbar.make(coordinatorLayout, R.string.couldnt_login, Snackbar.LENGTH_LONG).show();
                 mPasswordView.requestFocus();
+                Intent resultIntent = new Intent();
+                setResult(LOGIN_FAILURE, resultIntent);
             } else {
                 // Store user
+                User user = (User) objs[0];
+                UserAuth auth = (UserAuth) objs[1];
                 TCDatabaseHelper.get(LoginActivity.this).upsertUser(user);
                 AuthManager.get(LoginActivity.this).setAuth(auth);
+                FirebaseEvents.logSignin(LoginActivity.this);
+                //For cases where we need result
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(GuideActivity.EXTRA_USER,user);
+                setResult(LOGIN_SUCCESS, resultIntent);
                 finish();
             }
         }

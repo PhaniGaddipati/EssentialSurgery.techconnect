@@ -2,9 +2,11 @@ package org.techconnect.views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -83,12 +85,11 @@ public class GuideFlowView extends ScrollView implements View.OnClickListener {
         backButton.setEnabled(session.hasPrevious());
 
         tabContainer.removeAllViews();
-        if (curr_step.getResources().size() > 0 || curr_step.getComments().size() > 0) {
-            commentsResourcesTabbedView = (CommentsResourcesTabbedView) LayoutInflater.from(getContext())
-                    .inflate(R.layout.comments_resources_tabbed_view, tabContainer, false);
-            commentsResourcesTabbedView.setItems(curr_step.getComments(), curr_step.getResources());
-            tabContainer.addView(commentsResourcesTabbedView);
-        }
+        commentsResourcesTabbedView = (CommentsResourcesTabbedView) LayoutInflater.from(getContext())
+                .inflate(R.layout.comments_resources_tabbed_view, tabContainer, false);
+        commentsResourcesTabbedView.setItems(curr_step, curr_step.getResources(),
+                session.getFlowchart().getId());
+        tabContainer.addView(commentsResourcesTabbedView);
     }
 
 
@@ -109,6 +110,10 @@ public class GuideFlowView extends ScrollView implements View.OnClickListener {
                     advanceFlow(option);
                 }
             });
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            int dp4 = (int) (4 * Resources.getSystem().getDisplayMetrics().density);
+            params.setMargins(0, dp4, 0, dp4);
+            button.setLayoutParams(params);
             optionsLinearLayout.addView(button);
         }
     }
@@ -123,8 +128,8 @@ public class GuideFlowView extends ScrollView implements View.OnClickListener {
             imageLinearLayout.setVisibility(VISIBLE);
             List<String> images = curr_step.getImages();
             for (String url : images) {
-                if (ResourceHandler.get().hasStringResource(url)) {
-                    final File file = getContext().getFileStreamPath(ResourceHandler.get().getStringResource(url));
+                if (ResourceHandler.get(getContext()).hasStringResource(url)) {
+                    final File file = getContext().getFileStreamPath(ResourceHandler.get(getContext()).getStringResource(url));
                     ImageView imageView = new ImageView(getContext());
                     imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     int pixels = (int) (getResources().getDimension(R.dimen.flow_view_img_preview_width_dp));
@@ -134,6 +139,7 @@ public class GuideFlowView extends ScrollView implements View.OnClickListener {
                     imageView.setVisibility(VISIBLE);
                     Picasso.with(getContext())
                             .load(file)
+                            .placeholder(R.drawable.progress_animation)
                             .into(imageView);
                     imageView.setOnClickListener(new OnClickListener() {
                         @Override

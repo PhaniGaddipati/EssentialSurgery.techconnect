@@ -4,8 +4,13 @@ package org.techconnect.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.techconnect.misc.Utils;
+
 public class Comment implements Parcelable {
 
+
+    public static final String PARENT_TYPE_VERTEX = "node";
+    public static final String PARENT_TYPE_CHART = "chart";
 
     public static final Creator<Comment> CREATOR = new Creator<Comment>() {
         @Override
@@ -23,9 +28,11 @@ public class Comment implements Parcelable {
     private String ownerId;
     private String createdDate;
     private String ownerName;
+    private String nodeId;
 
 
     public Comment() {
+        createdDate = Utils.formatTimeMillis(System.currentTimeMillis());
     }
 
     protected Comment(Parcel in) {
@@ -34,6 +41,7 @@ public class Comment implements Parcelable {
         ownerId = in.readString();
         createdDate = in.readString();
         ownerName = in.readString();
+        nodeId = in.readString();
     }
 
     /**
@@ -88,6 +96,14 @@ public class Comment implements Parcelable {
         this.ownerName = ownerName;
     }
 
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -100,5 +116,6 @@ public class Comment implements Parcelable {
         parcel.writeString(ownerId);
         parcel.writeString(createdDate);
         parcel.writeString(ownerName);
+        parcel.writeString(nodeId);
     }
 }

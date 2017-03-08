@@ -8,13 +8,18 @@
     <string name="menu_self_help">Self Help</string>
     <string name="menu_resources">Resources</string>
     <string name="title_activity_intro_tutorial">TechConnect Tutorial</string>
-    <string name="call_directory">Call Directory</string>
+    <string name="directory">Directory</string>
+    <string name="resume_session">Resume Session</string>
+    <string name="repair_history">Repair History</string>
     <string name="reports">Reports</string>
     <string name="sync_online_resources">Update All Guides</string>
     <string name="loading">Loading</string>
     <string name="no_reports">No Reports</string>
     <string name="department">Department</string>
     <string name="device">Device</string>
+    <string name="devices">Devices</string>
+    <string name="user">User</string>
+    <string name="users">Users</string>
     <string name="role">Role</string>
     <string name="start_session">Start Session</string>
     <string name="notes">Notes</string>
@@ -33,36 +38,49 @@
     <string name="tutorial_title_welcome">Welcome to TechConnect!</string>
     <string name="tutorial_msg_welcome">Swipe for some quick tips</string>
 
-    <string name="tutorial_title_self_help_home">Self Help Homescreen</string>
-    <string name="tutorial_msg_self_help_home">This is the self help start screen</string>
+    <string name="tutorial_title_guides_home">Guide Homescreen</string>
+    <string name="tutorial_msg_guides_home">This screen contains all charts that have been downloaded to the device. Additional guides can be added by pressing the yellow button</string>
 
-    <string name="tutorial_title_select_room_device">Enter Room and Device</string>
-    <string name="tutorial_msg_select_room_device">Enter the name of the department the device is from and select the type of device from the drop-down menu</string>
+    <string name="tutorial_title_device_home">View device details and start a session</string>
+    <string name="tutorial_msg_device_home">Each device has a page with additional resources and comments on the guide as a whole. Press the \"Start Session\" button to begin</string>
 
-    <string name="tutorial_title_add_notes">Add Notes and Start</string>
-    <string name="tutorial_msg_add_notes">Add any additional notes then press \"Start Session\" to start</string>
+    <string name="tutorial_title_step">Start Session and Begin Troubleshooting</string>
+    <string name="tutorial_msg_step">Each troubleshooting step contains instructions on what to do next during the repair</string>
 
-    <string name="tutorial_title_troubleshoot">Work Through Troubleshooting Steps</string>
-    <string name="tutorial_msg_troubleshoot">You will be guided through a series of questions. Answer each question based on how the device is responding</string>
+    <string name="tutorial_title_step_details">Comments and Resources on Each Step</string>
+    <string name="tutorial_msg_step_details">Users have the ability to comment on any step of the chart. In addition, resources relevant to the step may be provided</string>
 
-    <string name="tutorial_title_tutorials">Read Skills Tutorials</string>
-    <string name="tutorial_msg_tutorials">For some steps, helpful resources will be provided for your reference</string>
+    <string name="tutorial_title_hamburger">Other Features</string>
+    <string name="tutorial_msg_hamburger">Other than the guides, you have access to other fuctions from the main menu including your profile and a directory</string>
 
-    <string name="tutorial_title_finish_repair">Finish Repair</string>
-    <string name="tutorial_msg_finish_repair">At some point, you will completely repair the device. Success!</string>
+    <string name="tutorial_title_profile">Profile Page</string>
+    <string name="tutorial_msg_profile">You can view and edit your profile page</string>
 
-    <string name="tutorial_title_additional_features">Additional Features</string>
-    <string name="tutorial_msg_additional_features">When you tap the expanded menu button at the upper left, you will be able to access other features such as reports and syncing</string>
+    <string name="tutorial_title_directory">User Directory</string>
+    <string name="tutorial_msg_directory">The directory allows you to connect with other technicians in order to get help on a repair</string>
+
+    <string name="tutorial_title_directory_skill">Search by Skill or Name</string>
+    <string name="tutorial_msg_directory_skill">The search bar allows you to search for technicians either by name or by a particular skill</string>
+
     <string name="click_im_preview">Click an image preview to zoom in</string>
     <string name="loading_resources">Loading Resources</string>
     <string name="error_loading_resources">Error loading resources</string>
-    <string name="view_tutorial">View Tutorial</string>
+    <string name="view_tutorial">Getting Started</string>
     <string name="downloading_resources">Downloading Resources</string>
     <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to profile -->
+    <string name="no_skills">No Skills Provided</string>
+
+    <!-- Strings related to Session -->
+    <string name="curr_step">Current Step</string>
+    <string name="delete_session">Delete Session</string>
+    <string name="session_title">Session</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_skill">Skill</string>
     <string name="action_sign_in">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
@@ -71,7 +89,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="skip_sign_in">Skip</string>
+    <string name="skip_sign_in">Skip sign in</string>
     <string name="skip_sign_in_msg">Skipping signin will make some features unavailable, such as commenting.</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="search_guides">Search</string>
@@ -81,16 +99,17 @@
     <string name="available_guides">Available Guides</string>
     <string name="no_guides">No guides have been downloaded yet</string>
     <string name="download_guides">Download Guides</string>
-    <string name="title_activity_guide">Guide</string>
+    <string name="title_activity_guide">Your Guide</string>
     <string name="description">Description</string>
     <string name="type">Type</string>
     <string name="score">Score</string>
     <string name="version">Version</string>
-    <string name="guides">Guides</string>
+    <string name="guides">Your Guides</string>
     <string name="error_play_guide">There was an error displaying this guide. Try re-downloading the guide</string>
     <string name="update_guide">Update Guide</string>
     <string name="serial_number">Serial Number</string>
     <string name="device_info">Device Information</string>
+    <string name="manufacturer">Manufacturer</string>
     <string name="model_number">Model Number</string>
     <string name="start_guide">Start Guide</string>
     <string name="last_updated">Updated</string>
@@ -118,4 +137,52 @@
     <string name="logging_out">Signing out</string>
     <string name="dont_show_again">Don\'t show again</string>
     <string name="comments">Comments</string>
+    <string name="download">Download</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="discard_changes">Discard Changes</string>
+    <string name="updating">Updating...</string>
+    <string name="write_comment">Write Comment...</string>
+    <string name="login_required">Login Required</string>
+    <string name="login_req_post_comment">You must be logged in to post a comment</string>
+    <string name="posting">Posting...</string>
+    <string name="error">Error</string>
+    <string name="failed_post_comment">Failed to post the comment</string>
+    <string name="failed_update_user">Failed to update profile info</string>
+    <string name="couldnt_login">Could not sign in. Check your email and password and try again</string>
+    <string name="view_profile">View Profile</string>
+    <string name="sign_in_to_comment">Please sign in to comment</string>
+    <string name="action_post_app_feedback">Send Feedback</string>
+    <string name="feedback_success">Thank you for your feedback</string>
+    <string name="feedback_fail">Failed to send the feedback</string>
+    <string name="save_changes_msg">Would you like to save your profile changes?</string>
+    <string name="offline_results_shown">Offline Results Shown</string>
+    <string name="search_skills_or_names">Search for skills or users</string>
+    <string name="search">Search</string>
+    <string name="offline_guides">View Downloaded Guides</string>
+    <string name="sort">Sort</string>
+    <string name="date">Date</string>
+    <string name="confirm_delete_session">Are you sure you want to delete this repair session?</string>
+
+    <!-- Feedback Strings -->
+    <string name="feedback_experience_guide">What was your experience with this guide?</string>
+    <string name="feedback_experience_option_1">TechConnect was very helpful</string>
+    <string name="feedback_experience_option_2">TechConnect was somewhat helpful</string>
+    <string name="feedback_experience_option_3">TechConnect was not helpful</string>
+    <string name="feedback_did_use_tc_contact">Did you use TechConnect to find someone to contact?</string>
+    <string name="feedback_contact_option_1">Yes, they helped me</string>
+    <string name="feedback_contact_option_2">Yes, but they did not help me</string>
+    <string name="feedback_contact_option_3">No</string>
+    <string name="other_feedback">Other Comments:</string>
+    <string name="submit_feedback">Submit Feedback</string>
+    <string name="save_session">Save Session</string>
+    <string name="save_session_msg">Would you like to save this session?</string>
+    <string name="feedback_no_selections">Please select your feedback</string>
+    <string name="export_repair_history">Export Repair History</string>
+    <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
+    <string name="finished_date">End Date</string>
+    <string name="status">Status</string>
+    <string name="required_fields">All fields except Notes are required</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

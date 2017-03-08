@@ -16,6 +16,7 @@
             android:id="@+id/search_linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
             android:orientation="horizontal">
 
             <EditText
@@ -24,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="@string/search_guides"
-                android:imeOptions="actionUnspecified"
+                android:imeOptions="actionDone"
                 android:inputType="text"
                 android:maxLines="1"
                 android:textColor="?android:attr/colorForeground" />
@@ -42,12 +43,12 @@
         <ListView
             android:id="@+id/guides_listView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/search_linearLayout"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:visibility="visible" />
 
         <LinearLayout
             android:id="@+id/no_guides_layout"
@@ -79,22 +80,9 @@
                 android:id="@+id/download_guides_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="@string/download_guides" />
-        </LinearLayout>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/download_floatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="8dp"
-            android:layout_marginRight="8dp"
-            android:clickable="true"
-            app:fabSize="normal"
-            app:srcCompat="@drawable/ic_file_download_white_48dp" />
+        </LinearLayout>
 
     </RelativeLayout>
 

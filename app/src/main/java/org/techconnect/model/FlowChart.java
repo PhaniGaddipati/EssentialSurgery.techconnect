@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import java.util.List;
 
 
-public class FlowChart implements Parcelable {
+public class FlowChart implements Parcelable, Commentable {
 
     public static final Creator<FlowChart> CREATOR = new Creator<FlowChart>() {
         @Override
@@ -27,11 +27,14 @@ public class FlowChart implements Parcelable {
     private String owner;
     private Graph graph;
     private List<String> all_res;
+    private List<String> all_usr_ids;
     private List<Comment> comments;
     private String image;
     private List<String> resources;
     private ChartType type;
     private int score;
+    private int upvotes;
+    private int downvotes;
 
     public FlowChart() {
 
@@ -45,10 +48,13 @@ public class FlowChart implements Parcelable {
         version = in.readString();
         owner = in.readString();
         all_res = in.createStringArrayList();
+        all_usr_ids = in.createStringArrayList();
         comments = in.createTypedArrayList(Comment.CREATOR);
         image = in.readString();
         resources = in.createStringArrayList();
         score = in.readInt();
+        upvotes = in.readInt();
+        downvotes = in.readInt();
         type = ChartType.valueOf(in.readString());
         graph = in.readParcelable(Graph.class.getClassLoader());
     }
@@ -61,6 +67,10 @@ public class FlowChart implements Parcelable {
         this._id = id;
     }
 
+    @Override
+    public String getParentType() {
+        return Comment.PARENT_TYPE_CHART;
+    }
 
     public int getScore() {
         return this.score;
@@ -172,12 +182,39 @@ public class FlowChart implements Parcelable {
         parcel.writeString(version);
         parcel.writeString(owner);
         parcel.writeStringList(all_res);
+        parcel.writeStringList(all_usr_ids);
         parcel.writeTypedList(comments);
         parcel.writeString(image);
         parcel.writeStringList(resources);
         parcel.writeInt(score);
+        parcel.writeInt(upvotes);
+        parcel.writeInt(downvotes);
         parcel.writeString(type.name());
         parcel.writeParcelable(graph, 0);
+    }
+
+    public List<String> getAllUserIds() {
+        return all_usr_ids;
+    }
+
+    public void setAllUserIds(List<String> all_user_ids) {
+        this.all_usr_ids = all_user_ids;
+    }
+
+    public int getUpvotes() {
+        return upvotes;
+    }
+
+    public void setUpvotes(int upvotes) {
+        this.upvotes = upvotes;
+    }
+
+    public int getDownvotes() {
+        return downvotes;
+    }
+
+    public void setDownvotes(int downvotes) {
+        this.downvotes = downvotes;
     }
 
     public enum ChartType {

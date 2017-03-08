@@ -1,5 +1,7 @@
 package org.techconnect.network;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -18,6 +20,7 @@ import org.techconnect.network.serializers.VertexDeserializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -51,12 +54,27 @@ public class TCNetworkHelper {
         return gsonBuilder.create();
     }
 
+    public boolean postAppFeedback(String userId, String text) throws IOException {
+        Response<JsendResponse> resp = service.postAppFeedback(userId, text).execute();
+        lastCode = resp.code();
+        //First check to see if the request succeeded
+        if (!resp.isSuccessful()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public UserAuth login(String email, String password) throws IOException {
         Response<JsendResponse> resp = service.login(email, password).execute();
         lastCode = resp.code();
         //First check to see if the request succeeded
         if (!resp.isSuccessful()) {
-            JsendResponse test = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         } else {
             //Now, I'm expecting a data object with fields relevant
@@ -69,7 +87,11 @@ public class TCNetworkHelper {
         Response<JsendResponse> resp = service.logout(auth.getAuthToken(), auth.getUserId()).execute();
         lastCode = resp.code();
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return false;
         }
         return true;
@@ -81,10 +103,35 @@ public class TCNetworkHelper {
         Response<JsendResponse> resp = service.register(email, password, countryCode, name, organization, expertises).execute();
         lastCode = resp.code();
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         } else {
             JsonObject obj = resp.body().getData();
+            return gson.fromJson(obj.get("user"), User.class);
+        }
+    }
+
+    public User updateUser(User user, UserAuth userAuth) throws IOException {
+        JsonObject user_obj = new JsonObject();
+        user_obj.add("user", gson.toJsonTree(user));
+        Log.d("Update User",user_obj.toString());
+        Response<JsendResponse> resp = service.updateUser(userAuth.getAuthToken(), userAuth.getUserId(), userAuth.getUserId(), user_obj).execute();
+        lastCode = resp.code();
+        if (!resp.isSuccessful()) {
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+                Log.e("Update User failed", lastError.getMessage());
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
+            return null;
+        } else {
+            JsonObject obj = resp.body().getData();
+            Log.d("Update User",obj.toString());
             return gson.fromJson(obj.get("user"), User.class);
         }
     }
@@ -93,11 +140,49 @@ public class TCNetworkHelper {
         Response<JsendResponse> resp = service.getUser(id).execute();
         lastCode = resp.code();
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         } else {
             JsonObject obj = resp.body().getData();
             return gson.fromJson(obj.get("user"), User.class);
+        }
+    }
+
+    /**
+     * Goal is to search user fields for the filter. Used to identify users which fit a particular filter
+     *
+     * @param filter - string search query
+     * @return List of users which satisfy the search query
+     */
+    public List<User> searchUsers(String filter, int limit, int skip) throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("query", filter);
+        body.addProperty("limit", limit);
+        body.addProperty("skip", skip);
+        RequestBody requestBody = RequestBody.create(JSON, body.toString());
+        Response<JsendResponse> resp = service.searchUsers(requestBody).execute();
+        lastCode = resp.code();
+        if (!resp.isSuccessful()) {
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
+            return null;
+        } else {
+            //Now, expecting a JsendResponse with a list of user objects
+            JsonObject obj = resp.body().getData();
+            ArrayList<User> users = new ArrayList<User>();
+            Log.d("Directory Setup", String.format("Num Users: %d", obj.get("results").getAsJsonArray().size()));
+            for (JsonElement j : obj.get("results").getAsJsonArray()) {
+                User u = gson.fromJson(j, User.class);
+                users.add(u);
+            }
+            return users;
         }
     }
 
@@ -113,7 +198,11 @@ public class TCNetworkHelper {
         //First, check whether there is an error. HAVE TO DO THIS TO SATISFY RETROFIT!
         //Cheking first if the http request was successful. if not, have to manually deserialize the JSON
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         } else {
             //Now, I'm expecting a getCatalog
@@ -133,7 +222,11 @@ public class TCNetworkHelper {
         lastCode = resp.code();
         //First, check whether there is an error
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         } else {
             //Now, I know that there is a FlowChart contained in this resp. Just get it
@@ -155,7 +248,11 @@ public class TCNetworkHelper {
         Response<JsendResponse> resp = service.getFlowcharts(ids).execute();
         lastCode = resp.code();
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         } else {
             //Now I know, I should be getting two objects. bad ID strings as well as the actual flowcharts
@@ -176,14 +273,18 @@ public class TCNetworkHelper {
      * @param c        - The actual comment object
      * @throws IOException
      */
-    public FlowChart comment(String chart_id, Comment c, UserAuth auth) throws IOException {
+    public Comment comment(String chart_id, Comment c, UserAuth auth) throws IOException {
         Response<JsendResponse> resp = service.postComment(auth.getAuthToken(), auth.getUserId(), chart_id, c).execute();
         lastCode = resp.code();
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         }
-        return gson.fromJson(resp.body().getData().get("flowchart"), FlowChart.class);
+        return gson.fromJson(resp.body().getData().get("comment"), Comment.class);
     }
 
     /**
@@ -201,7 +302,11 @@ public class TCNetworkHelper {
                 chart_id, requestBody).execute();
         lastCode = resp.code();
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         }
         return gson.fromJson(resp.body().getData().get("flowchart"), FlowChart.class);
@@ -211,19 +316,26 @@ public class TCNetworkHelper {
     /**
      * Use this method to provide feedback on the chart (up-vote, down-vote currently)
      *
-     * @param upVote - Boolean which determines whether up-vote (true)
+     * @param vote - String which determines whether up-vote (true)
+     * @param clear - boolean that determines whether server should remove all feedback from user
      */
-    public FlowChart postFeedback(String chart_id, boolean upVote, UserAuth auth) throws IOException {
-        String vote = upVote ? "true" : "false";
+    public FlowChart postFeedback(String chart_id, String vote, UserAuth auth, boolean clear) throws IOException {
         JsonObject body = new JsonObject();
         body.addProperty("feedback", vote);
+        if (clear) {
+            body.addProperty("clear", true);
+        }
         RequestBody requestBody = RequestBody.create(JSON, body.toString());
 
         Response<JsendResponse> resp = service.postFeedback(auth.getAuthToken(),
                 auth.getUserId(), chart_id, requestBody).execute();
         lastCode = resp.code();
         if (!resp.isSuccessful()) {
-            lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            try {
+                lastError = gson.fromJson(resp.errorBody().string(), JsendResponse.class);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             return null;
         }
         return gson.fromJson(resp.body().getData().get("flowchart"), FlowChart.class);

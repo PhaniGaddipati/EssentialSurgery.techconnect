@@ -3,11 +3,15 @@ package org.techconnect.sql;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.opencsv.CSVWriter;
 
 import org.techconnect.model.Comment;
 import org.techconnect.model.Edge;
@@ -15,13 +19,19 @@ import org.techconnect.model.FlowChart;
 import org.techconnect.model.Graph;
 import org.techconnect.model.User;
 import org.techconnect.model.Vertex;
+import org.techconnect.model.session.Session;
 import org.techconnect.sql.TCDatabaseContract.ChartEntry;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -31,10 +41,10 @@ import java.util.Map;
  */
 public class TCDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "FlowChart.db";
     private static TCDatabaseHelper instance = null;
-    private final Context context;
+    private Context context;
 
     private TCDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,10 +55,6 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         if (instance == null) {
             instance = new TCDatabaseHelper(context);
         }
-        return instance;
-    }
-
-    public static TCDatabaseHelper get() {
         return instance;
     }
 
@@ -79,7 +85,19 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase sql, int fromV, int toV) {
+        if (fromV == 1 && toV == 2) {
+            // User: Add upcharts, downcharts
+            // Chart: Add upvotes, downvotes
+            // Session: finishedDate, manufacturer
+
+            sql.execSQL(TCDatabaseContract.UserEntry.UPGRADE_V1_V2_ADD_DOWNCHARTS);
+            sql.execSQL(TCDatabaseContract.UserEntry.UPGRADE_V1_V2_ADD_UPCHARTS);
+            sql.execSQL(ChartEntry.UPGRADE_V1_V2_ADD_DOWNVOTES);
+            sql.execSQL(ChartEntry.UPGRADE_V1_V2_ADD_UPVOTES);
+            sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V1_V2_ADD_FINISHED_DATE);
+            sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V1_V2_ADD_MANUFACTURER);
+        }
     }
 
     public void upsertCharts(FlowChart charts[]) {
@@ -102,7 +120,10 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(TCDatabaseContract.UserEntry.EMAIL, user.getEmail());
         contentValues.put(TCDatabaseContract.UserEntry.NAME, user.getName());
         contentValues.put(TCDatabaseContract.UserEntry.ORGANIZATION, user.getOrganization());
+        contentValues.put(TCDatabaseContract.UserEntry.PIC, user.getPic());
         contentValues.put(TCDatabaseContract.UserEntry.EXPERTISES, TextUtils.join(",", user.getExpertises()));
+        contentValues.put(TCDatabaseContract.UserEntry.UPCHARTS, TextUtils.join(",", user.getUpCharts()));
+        contentValues.put(TCDatabaseContract.UserEntry.DOWNCHARTS, TextUtils.join(",", user.getDownCharts()));
         getWritableDatabase().insertWithOnConflict(TCDatabaseContract.UserEntry.TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
@@ -122,14 +143,69 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         user.setEmail(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.EMAIL)));
         user.setName(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.NAME)));
         user.setOrganization(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.ORGANIZATION)));
+        user.setPic(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.PIC)));
         String expertises = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.EXPERTISES));
         if (TextUtils.isEmpty(expertises.trim())) {
             user.setExpertises(new ArrayList<String>(0));
         } else {
             user.setExpertises(Arrays.asList(expertises.split(",")));
         }
+        String upCharts = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.UPCHARTS));
+        if (TextUtils.isEmpty(upCharts.trim())) {
+            user.setUpCharts(new ArrayList<String>(0));
+        } else {
+            user.setUpCharts(Arrays.asList(upCharts.split(",")));
+        }
+        String downCharts = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.DOWNCHARTS));
+        if (TextUtils.isEmpty(downCharts.trim())) {
+            user.setDownCharts(new ArrayList<String>(0));
+        } else {
+            user.setDownCharts(Arrays.asList(downCharts.split(",")));
+        }
         c.close();
         return user;
+    }
+
+    public List<User> getAllUsers() {
+        Cursor c = getReadableDatabase().query(TCDatabaseContract.UserEntry.TABLE_NAME,
+                null, null, null, null, null, null);
+        c.moveToFirst();
+        if (c.getCount() < 1) {
+            return new ArrayList<>();
+        }
+        List<User> users = new ArrayList<>();
+        while (!c.isAfterLast()) {
+            User user = new User();
+            user.set_id(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.ID)));
+            user.setCountry(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.COUNTRY)));
+            user.setCountryCode(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.COUNTRY_CODE)));
+            user.setEmail(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.EMAIL)));
+            user.setName(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.NAME)));
+            user.setOrganization(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.ORGANIZATION)));
+            user.setPic(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.PIC)));
+            String expertises = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.EXPERTISES));
+            if (TextUtils.isEmpty(expertises.trim())) {
+                user.setExpertises(new ArrayList<String>(0));
+            } else {
+                user.setExpertises(Arrays.asList(expertises.split(",")));
+            }
+            String upCharts = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.UPCHARTS));
+            if (TextUtils.isEmpty(upCharts.trim())) {
+                user.setUpCharts(new ArrayList<String>(0));
+            } else {
+                user.setUpCharts(Arrays.asList(upCharts.split(",")));
+            }
+            String downCharts = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.UserEntry.DOWNCHARTS));
+            if (TextUtils.isEmpty(downCharts.trim())) {
+                user.setDownCharts(new ArrayList<String>(0));
+            } else {
+                user.setDownCharts(Arrays.asList(downCharts.split(",")));
+            }
+            users.add(user);
+            c.moveToNext();
+        }
+        c.close();
+        return users;
     }
 
     /**
@@ -148,6 +224,33 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         return set;
     }
 
+    /**
+     * Opposite of previous function.
+     *
+     * @return Map of Flowchart ID to name
+     */
+    public Map<String, String> getChartIDsAndNames() {
+        Map<String, String> set = new HashMap<>();
+        Cursor c = getReadableDatabase().query(ChartEntry.TABLE_NAME, new String[]{ChartEntry.ID, ChartEntry.NAME}, null,
+                null, null, null, null);
+        c.moveToFirst();
+        while (!c.isAfterLast()) {
+            set.put(c.getString(c.getColumnIndexOrThrow(ChartEntry.ID)), c.getString(c.getColumnIndexOrThrow(ChartEntry.NAME)));
+            c.moveToNext();
+        }
+        c.close();
+        return set;
+    }
+
+    public int getNumFlowcharts() {
+        List<String> ids = new LinkedList<>();
+        Cursor c = getReadableDatabase().query(ChartEntry.TABLE_NAME, new String[]{ChartEntry.ID}, null,
+                null, null, null, null);
+        int count = c.getCount();
+        c.close();
+        return count;
+    }
+
     public String[] getAllChartIds() {
         List<String> ids = new LinkedList<>();
         Cursor c = getReadableDatabase().query(ChartEntry.TABLE_NAME, new String[]{ChartEntry.ID}, null,
@@ -159,6 +262,15 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         }
         c.close();
         return ids.toArray(new String[ids.size()]);
+    }
+
+    public CursorLoader getAllFlowchartsCursorLoader(final String filter) {
+        return new CursorLoader(context, null, null, null, null, null) {
+            @Override
+            public Cursor loadInBackground() {
+                return getAllFlowchartsCursor(filter);
+            }
+        };
     }
 
     public Cursor getAllFlowchartsCursor() {
@@ -201,8 +313,15 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         return chart;
     }
 
+
+    /**
+     * Get a stub chart, for use in listviews when you don't need comments and the graph.
+     *
+     * @param c
+     * @return
+     */
     @NonNull
-    public FlowChart getChartFromCursor(Cursor c) {
+    public FlowChart getChartStubFromCursor(Cursor c) {
         FlowChart chart = new FlowChart();
         chart.setId(c.getString(c.getColumnIndexOrThrow(ChartEntry.ID)));
         chart.setName(c.getString(c.getColumnIndexOrThrow(ChartEntry.NAME)));
@@ -213,6 +332,14 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         chart.setImage(c.getString(c.getColumnIndexOrThrow(ChartEntry.IMAGE)));
         chart.setType(FlowChart.ChartType.valueOf(c.getString(c.getColumnIndexOrThrow(ChartEntry.TYPE))));
         chart.setScore(c.getInt(c.getColumnIndexOrThrow(ChartEntry.SCORE)));
+        chart.setUpvotes(c.getInt(c.getColumnIndexOrThrow(ChartEntry.UPVOTES)));
+        chart.setDownvotes(c.getInt(c.getColumnIndexOrThrow(ChartEntry.DOWNVOTES)));
+        return chart;
+    }
+
+    @NonNull
+    public FlowChart getChartFromCursor(Cursor c) {
+        FlowChart chart = getChartStubFromCursor(c);
         String allRes = c.getString(c.getColumnIndexOrThrow(ChartEntry.ALL_RESOURCES));
         String res = c.getString(c.getColumnIndexOrThrow(ChartEntry.RESOURCES));
         if (allRes != null && !TextUtils.isEmpty(allRes.trim())) {
@@ -228,7 +355,7 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
 
         String graphId = c.getString(c.getColumnIndexOrThrow(ChartEntry.GRAPH_ID));
         chart.setGraph(getGraph(graphId));
-        chart.setComments(getComments(chart.getId(), TCDatabaseContract.CommentEntry.PARENT_TYPE_CHART));
+        chart.setComments(getComments(chart.getId(), Comment.PARENT_TYPE_CHART));
         return chart;
     }
 
@@ -242,8 +369,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             String graphId = insertGraph(flowChart.getGraph());
             ContentValues chartContentValues = getChartContentValues(flowChart, graphId);
             try {
-                deleteComments(flowChart.getId(), TCDatabaseContract.CommentEntry.PARENT_TYPE_CHART);
-                insertComments(flowChart.getComments(), flowChart.getId(), TCDatabaseContract.CommentEntry.PARENT_TYPE_CHART);
+                deleteComments(flowChart.getId(), Comment.PARENT_TYPE_CHART);
+                insertComments(flowChart.getComments(), flowChart.getId(), Comment.PARENT_TYPE_CHART);
                 getWritableDatabase().update(ChartEntry.TABLE_NAME, chartContentValues,
                         ChartEntry.ID + " = ?", new String[]{flowChart.getId()});
             } catch (Exception e) {
@@ -281,8 +408,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         //Insert chart & comments
         try {
             //Delete old comments and insert new ones
-            deleteComments(flowChart.getId(), TCDatabaseContract.CommentEntry.PARENT_TYPE_CHART);
-            insertComments(flowChart.getComments(), flowChart.getId(), TCDatabaseContract.CommentEntry.PARENT_TYPE_CHART);
+            deleteComments(flowChart.getId(), Comment.PARENT_TYPE_CHART);
+            insertComments(flowChart.getComments(), flowChart.getId(), Comment.PARENT_TYPE_CHART);
             getWritableDatabase().insert(ChartEntry.TABLE_NAME, null, chartContentValues);
         } catch (Exception e) {
             Log.e(this.getClass().getName(), e.getMessage());
@@ -314,6 +441,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
 
         chartContentValues.put(ChartEntry.TYPE, flowChart.getType().toString());
         chartContentValues.put(ChartEntry.SCORE, flowChart.getScore());
+        chartContentValues.put(ChartEntry.UPVOTES, flowChart.getUpvotes());
+        chartContentValues.put(ChartEntry.DOWNVOTES, flowChart.getDownvotes());
         return chartContentValues;
     }
 
@@ -345,13 +474,13 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         getWritableDatabase().delete(TCDatabaseContract.CommentEntry.TABLE_NAME, selection, null);
     }
 
-    private void insertComments(List<Comment> comments, String parentId, String parentType) {
+    public void insertComments(List<Comment> comments, String parentId, String parentType) {
         for (Comment comment : comments) {
             insertComment(comment, parentId, parentType);
         }
     }
 
-    private void insertComment(Comment comment, String parentId, String parentType) {
+    public void insertComment(Comment comment, String parentId, String parentType) {
         ContentValues commentContentValues = new ContentValues();
         commentContentValues.put(TCDatabaseContract.CommentEntry.ID, getRandomId());
         commentContentValues.put(TCDatabaseContract.CommentEntry.PARENT_ID, parentId);
@@ -422,7 +551,7 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         }
         c.close();
         for (Vertex v : verticies) {
-            v.setComments(getComments(v.getId(), TCDatabaseContract.CommentEntry.PARENT_TYPE_VERTEX));
+            v.setComments(getComments(v.getId(), Comment.PARENT_TYPE_VERTEX));
         }
         return verticies;
     }
@@ -517,8 +646,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         vertexContentValues.put(TCDatabaseContract.VertexEntry.IMAGES, allImgs);
 
         // Delete old vertices and insert new ones
-        deleteComments(v.getId(), TCDatabaseContract.CommentEntry.PARENT_TYPE_VERTEX);
-        insertComments(v.getComments(), v.getId(), TCDatabaseContract.CommentEntry.PARENT_TYPE_VERTEX);
+        deleteComments(v.getId(), Comment.PARENT_TYPE_VERTEX);
+        insertComments(v.getComments(), v.getId(), Comment.PARENT_TYPE_VERTEX);
 
         sql.insertWithOnConflict(TCDatabaseContract.VertexEntry.TABLE_NAME, null, vertexContentValues, SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -542,5 +671,394 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             sql.insertWithOnConflict(TCDatabaseContract.EdgeEntry.TABLE_NAME, null, edgeContentValues, SQLiteDatabase.CONFLICT_REPLACE);
         }
         Log.d(this.getClass().getName(), "Edges Info Inserted Successfully");
+    }
+
+    public void insertSession(Session s) {
+        ContentValues sessionContentValues = getSessionContentValues(s);
+        //Insert session into database
+        try {
+            getWritableDatabase().insert(TCDatabaseContract.SessionEntry.TABLE_NAME, null, sessionContentValues);
+        } catch (Exception e) {
+            Log.e(this.getClass().getName(), e.getMessage());
+        }
+
+        Log.d(this.getClass().getName(), "Session Info Inserted Successfully");
+    }
+
+    public void upsertSession(Session s) {
+        ContentValues sessionContentValues = getSessionContentValues(s);
+        //Insert session into database
+        try {
+            int id = (int) getWritableDatabase().insertWithOnConflict(TCDatabaseContract.SessionEntry.TABLE_NAME, null, sessionContentValues, SQLiteDatabase.CONFLICT_IGNORE);
+            if (id == -1) {
+                Log.d(this.getClass().getName(), "Attempting Update of Existing Entry");
+                String selection = TCDatabaseContract.SessionEntry.ID + " = ?";
+                String[] selectionArgs = new String[]{sessionContentValues.getAsString(TCDatabaseContract.SessionEntry.ID)};
+                getWritableDatabase().update(TCDatabaseContract.SessionEntry.TABLE_NAME, sessionContentValues, selection, selectionArgs);  // number 1 is the _id here, update to variable for your code
+            }
+        } catch (Exception e) {
+            Log.e(this.getClass().getName(), e.getMessage());
+        }
+
+        Log.d(this.getClass().getName(), "Session Info Inserted Successfully");
+    }
+
+    public Session getSession(String id, Context context) {
+        String selection = TCDatabaseContract.SessionEntry.ID + " = ?";
+        String selectionArgs[] = {id};
+        Cursor c = getReadableDatabase().query(TCDatabaseContract.SessionEntry.TABLE_NAME,
+                null, selection, selectionArgs, null, null, null);
+        c.moveToFirst();
+        if (c.getCount() > 0) {
+            String flowchart_id = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FLOWCHART_ID));
+            FlowChart flow = getChart(flowchart_id);
+            Session s = new Session(flow);
+            s.setId(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.ID)));
+            s.setCreatedDate(c.getLong(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.CREATED_DATE)));
+            s.setFinishedDate(c.getLong(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FINISHED_DATE)));
+            s.setManufacturer(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MANUFACTURER)));
+            s.setDepartment(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.DEPARTMENT)));
+            s.setModelNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MODEL)));
+            s.setSerialNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SERIAL)));
+            s.setNotes(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.NOTES)));
+            s.setFinished(c.getInt(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FINISHED)) != 0);
+
+            //Restore the Session status based on History
+            String raw_history = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.HISTORY));
+            ArrayList<String> history = new ArrayList<>(Arrays.asList(raw_history.split(",")));
+            String raw_opt_history = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.OPTION_HISTORY));
+            ArrayList<String> opt_history = new ArrayList<>(Arrays.asList(raw_opt_history.split(",")));
+            s.setHistory(history);
+            s.setOptionHistory(opt_history);
+
+            //Set the current vertex in the traversal as the most recent vertex ID in the history list
+            s.setCurrentVertex(history.get(history.size() - 1));
+            s.updateHistoryStack();
+            return s;
+        }
+        return null;
+    }
+
+    /**
+     * Return list of all Session IDs currently stored in the database
+     *
+     * @return
+     */
+    public List<String> getSessions() {
+        List<String> ids = new ArrayList<String>();
+        Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TCDatabaseContract.SessionEntry.TABLE_NAME + " ", null);
+        cursor.moveToFirst();
+        while (cursor.moveToNext()) {
+            ids.add(cursor.getString(cursor.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.ID)));
+        }
+        return ids;
+    }
+
+    public void deleteSession(Session s) {
+        String selection = TCDatabaseContract.SessionEntry.ID + " = ?";
+        String selectionArgs[] = {s.getId()};
+        int result = getWritableDatabase().delete(TCDatabaseContract.SessionEntry.TABLE_NAME, selection, selectionArgs);
+        Log.d("Delete Session", String.format("%d", result));
+    }
+
+    /**
+     * Used to return a list of all active sessions currently stored in database
+     *
+     * @return The actual list of te active sessions (as objects)
+     */
+    public List<Session> getActiveSessions() {
+        String selection = TCDatabaseContract.SessionEntry.FINISHED + " = ?";
+        String selectionArgs[] = {"0"}; //False in boolean
+        Cursor c = getReadableDatabase().query(TCDatabaseContract.GraphEntry.TABLE_NAME,
+                null, selection, selectionArgs, null, null, null);
+        c.moveToFirst();
+        List<Session> sessions = new ArrayList<Session>(c.getCount());
+
+        while (!c.isAfterLast()) {
+            String flowchart_id = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FLOWCHART_ID));
+            FlowChart flow = getChart(flowchart_id);
+            Session s = new Session(flow);
+            s.setCreatedDate(c.getLong(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.CREATED_DATE)));
+            s.setManufacturer(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MANUFACTURER)));
+            s.setDepartment(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.DEPARTMENT)));
+            s.setModelNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MODEL)));
+            s.setSerialNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SERIAL)));
+            s.setNotes(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.NOTES)));
+            s.setFinished(c.getInt(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FINISHED)) != 0);
+
+            //Restore the Session status based on History
+            String raw_history = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.HISTORY));
+            ArrayList<String> history = new ArrayList<>(Arrays.asList(raw_history.split(",")));
+            String raw_opt_history = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.OPTION_HISTORY));
+            ArrayList<String> opt_history = new ArrayList<>(Arrays.asList(raw_opt_history.split(",")));
+            s.setHistory(history);
+            s.setOptionHistory(opt_history);
+
+            //Set the current vertex in the traversal as the most recent vertex ID in the history list
+            s.setCurrentVertex(history.get(history.size() - 1));
+            s.updateHistoryStack();
+
+            sessions.add(s);
+            c.moveToNext();
+        }
+        return sessions;
+    }
+
+    public Cursor getActiveSessionsCursor() {
+        String selection = TCDatabaseContract.SessionEntry.FINISHED + " = ?";
+        String selectionArgs[] = {"0"}; //False in boolean
+        return getReadableDatabase().query(TCDatabaseContract.SessionEntry.TABLE_NAME,
+                null, selection, selectionArgs, null, null, null);
+    }
+
+    public Cursor getFinishedSessionsCursor() {
+        String selection = TCDatabaseContract.SessionEntry.FINISHED + " = ?";
+        String selectionArgs[] = {"1"}; //False in boolean
+        return getReadableDatabase().query(TCDatabaseContract.SessionEntry.TABLE_NAME,
+                null, selection, selectionArgs, null, null, null);
+    }
+
+    public CursorLoader getActiveSessionsCursorLoader() {
+        return new CursorLoader(context, null, null, null, null, null) {
+            @Override
+            public Cursor loadInBackground() {
+                return getActiveSessionsCursor();
+            }
+        };
+    }
+
+    public CursorLoader getFinishedSessionsCursorLoader() {
+        return new CursorLoader(context, null, null, null, null, null) {
+            @Override
+            public Cursor loadInBackground() {
+                return getFinishedSessionsCursor();
+            }
+        };
+    }
+
+
+    /**
+     * Determine the number of Active vs. Finished session and report as a map
+     *
+     * @return
+     */
+    public Map<String, Integer> getActiveSessionsCounts() {
+        //First, get the total number of entries
+        int cnt = (int) DatabaseUtils.queryNumEntries(getReadableDatabase(), TCDatabaseContract.SessionEntry.TABLE_NAME);
+        String selection = "SELECT COUNT( " + TCDatabaseContract.SessionEntry.FINISHED + " ) FROM "
+                + TCDatabaseContract.SessionEntry.TABLE_NAME + " WHERE " + TCDatabaseContract.SessionEntry.FINISHED
+                + " = ?";
+        String selectionArgs[] = {"0"};
+        Cursor cursor = getReadableDatabase().rawQuery(selection, selectionArgs);
+        cursor.moveToFirst();
+        int counter = cursor.getInt(0); //Total number of Active sessions
+        cursor.close();
+
+        //Setup the map
+        HashMap<String, Integer> map = new HashMap<>();
+        map.put("Active", counter);
+        map.put("Finished", cnt - counter);
+
+        return map;
+    }
+
+    //Need a method to get all unique devices stored in the
+
+    /**
+     * @param id - ID of chart of interest
+     * @return Count of sessions associated with chart of interest
+     */
+    public int getSessionsChartCount(String id) {
+        String selection = "SELECT COUNT( " + TCDatabaseContract.SessionEntry.FLOWCHART_ID + " ) FROM "
+                + TCDatabaseContract.SessionEntry.TABLE_NAME + " WHERE " + TCDatabaseContract.SessionEntry.FLOWCHART_ID
+                + " = ?";
+        String selectionArgs[] = {id};
+        Cursor cursor = getReadableDatabase().rawQuery(selection, selectionArgs);
+        cursor.moveToFirst();
+        int counter = cursor.getInt(0);
+        cursor.close();
+        return counter;
+    }
+
+    /**
+     * @param id - ID of chart of interest
+     * @return Cursor that points to all stored sessions associated with the flowchart of interest
+     */
+    public Cursor getSessionsFromChart(String id) {
+        String selection = TCDatabaseContract.SessionEntry.FLOWCHART_ID + " = ?";
+        return getReadableDatabase().query(TCDatabaseContract.SessionEntry.TABLE_NAME,
+                null, selection, new String[]{id}, null, null, null);
+    }
+
+    /**
+     * @return
+     */
+    public CursorLoader getSessionsFromChartCursorLoader(final String id) {
+        return new CursorLoader(context, null, null, null, null, null) {
+            @Override
+            public Cursor loadInBackground() {
+                return getSessionsFromChart(id);
+            }
+        };
+    }
+
+    /**
+     * @return Get Count of all sessions in unique (Month, Year)
+     */
+    public Map<String, Integer> getSessionDatesCounts() {
+        HashMap<String, Integer> map = new HashMap<>();
+        String selection = "Select " + TCDatabaseContract.SessionEntry.CREATED_DATE + " FROM " +
+                TCDatabaseContract.SessionEntry.TABLE_NAME;
+        Cursor cursor = getReadableDatabase().rawQuery(selection, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            //Read in Date into format MM, YYYY
+            SimpleDateFormat dayFormat = new SimpleDateFormat("MMMM yyyy");
+            String dateTime = dayFormat.format(cursor.getLong(0));
+            //Log.d("SQL Database", new SimpleDateFormat("M").format(cursor.getLong(0)));
+            if (map.containsKey(dateTime)) {
+                int curr = map.get(dateTime);
+                map.put(dateTime, ++curr);
+            } else {
+                map.put(dateTime, 1);
+            }
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return map;
+    }
+
+    /**
+     * @param date - Date in the format "MMMM yyyy"
+     * @return Cursor representing all entries belonging to that month/year combo
+     */
+    public Cursor getSessionsFromDate(String date) {
+        String selection = "strftime('%m', " +
+                TCDatabaseContract.SessionEntry.CREATED_DATE + "/1000, 'unixepoch') = ? AND strftime('%Y', " + TCDatabaseContract.SessionEntry.CREATED_DATE +
+                "/1000, 'unixepoch') = ?";
+        String[] selectionArgs = date.split(" "); //Split into Month and Date
+        try {
+            Date d = new SimpleDateFormat("MMMM").parse(selectionArgs[0]);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(d);
+            selectionArgs[0] = String.format("%02d", cal.get(Calendar.MONTH) + 1);
+            Log.d("SQL Database", String.format("%s, %s", selectionArgs[0], selectionArgs[1]));
+        } catch (ParseException e) {
+            Log.e("SQL Database", "Error in Month format for session recovery");
+        }
+
+        //If made it, place the query
+        return getReadableDatabase().query(TCDatabaseContract.SessionEntry.TABLE_NAME,
+                null, selection, selectionArgs, null, null, null);
+    }
+
+    /**
+     * @return
+     */
+    public CursorLoader getSessionsFromDateCursorLoader(final String date) {
+        return new CursorLoader(context, null, null, null, null, null) {
+            @Override
+            public Cursor loadInBackground() {
+                return getSessionsFromDate(date);
+            }
+        };
+    }
+
+    /**
+     * Write the current repair history to a csv file
+     *
+     * @param writer - CSVWriter object that writes the SQL data to a specific file
+     */
+    public void writeRepairHistoryToFile(CSVWriter writer) {
+        //Choose columns appropriately
+        String[] columnsSelect = {TCDatabaseContract.SessionEntry.FLOWCHART_ID, TCDatabaseContract.SessionEntry.CREATED_DATE, TCDatabaseContract.SessionEntry.FINISHED_DATE, TCDatabaseContract.SessionEntry.MANUFACTURER,
+                TCDatabaseContract.SessionEntry.DEPARTMENT, TCDatabaseContract.SessionEntry.MODEL, TCDatabaseContract.SessionEntry.SERIAL, TCDatabaseContract.SessionEntry.NOTES,
+                TCDatabaseContract.SessionEntry.FINISHED};
+
+        //Get Cursor representing data
+        Cursor csvCursor = getReadableDatabase().query(TCDatabaseContract.SessionEntry.TABLE_NAME,
+                columnsSelect, null, null, null, null, null);
+
+        //Set Column Titles for CSV
+        String[] columnTitle = {"Device", TCDatabaseContract.SessionEntry.CREATED_DATE, TCDatabaseContract.SessionEntry.FINISHED_DATE, TCDatabaseContract.SessionEntry.MANUFACTURER,
+                TCDatabaseContract.SessionEntry.DEPARTMENT, TCDatabaseContract.SessionEntry.MODEL, TCDatabaseContract.SessionEntry.SERIAL, TCDatabaseContract.SessionEntry.NOTES};
+
+        //Start writing the table
+        writer.writeNext(columnTitle);
+        while (csvCursor.moveToNext()) {
+            //Get Device Name from Flowchart_ID
+            String device = getChartIDsAndNames().get(csvCursor.getString(0));
+            //Convert Date to simple DateFormat based on Locale
+            String dateCreated = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(csvCursor.getLong(1));
+            String dateFinished;
+            //Determine Date Finished
+            if (csvCursor.getString(8).equals("1")) {
+                dateFinished = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(csvCursor.getLong(2));
+            } else {
+                dateFinished = "In Progress";
+            }
+
+            String[] entry = {device, dateCreated, dateFinished, csvCursor.getString(3), csvCursor.getString(4), csvCursor.getString(5), csvCursor.getString(6),
+                    csvCursor.getString(7)};
+            writer.writeNext(entry);
+        }
+
+
+    }
+
+
+    public Session getSessionFromCursor(Cursor c) {
+        String flowchart_id = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FLOWCHART_ID));
+        FlowChart flow = getChart(flowchart_id);
+        Session s = new Session(flow);
+        s.setId(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.ID)));
+        s.setCreatedDate(c.getLong(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.CREATED_DATE)));
+        s.setFinishedDate(c.getLong(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FINISHED_DATE)));
+        s.setManufacturer(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MANUFACTURER)));
+        s.setDepartment(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.DEPARTMENT)));
+        s.setModelNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MODEL)));
+        s.setSerialNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SERIAL)));
+        s.setNotes(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.NOTES)));
+        s.setFinished(c.getInt(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FINISHED)) != 0);
+
+        //Restore the Session status based on History
+        String raw_history = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.HISTORY));
+        ArrayList<String> history = new ArrayList<>(Arrays.asList(raw_history.split(",")));
+        String raw_opt_history = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.OPTION_HISTORY));
+        ArrayList<String> opt_history = new ArrayList<>(Arrays.asList(raw_opt_history.split(",")));
+        s.setHistory(history);
+        s.setOptionHistory(opt_history);
+
+        //Set the current vertex in the traversal as the most recent vertex ID in the history list
+        s.setCurrentVertex(history.get(history.size() - 1));
+        s.updateHistoryStack();
+
+        return s;
+    }
+
+    private ContentValues getSessionContentValues(Session s) {
+        ContentValues sessionContentValues = new ContentValues();
+        if (s.getId() == null) {
+            s.setId(getRandomId()); //Set the random ID field
+        }
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.ID, s.getId());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.CREATED_DATE, s.getCreatedDate());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.MANUFACTURER, s.getManufacturer());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.FINISHED, s.isFinished());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.FINISHED_DATE, s.getFinishedDate());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.DEPARTMENT, s.getDepartment());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.MODEL, s.getModelNumber());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.SERIAL, s.getSerialNumber());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.NOTES, s.getNotes());
+
+        //Generate a comma separated list of strings for the two history entries
+        String history = TextUtils.join(",", s.getHistory());
+        String opt_history = TextUtils.join(",", s.getOptionHistory());
+
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.HISTORY, history);
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.OPTION_HISTORY, opt_history);
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.FLOWCHART_ID, s.getFlowchart().getId());
+
+        return sessionContentValues;
     }
 }

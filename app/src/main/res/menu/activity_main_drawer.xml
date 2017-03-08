@@ -1,48 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <group android:id="@+id/acct_group">
+        <item
+            android:id="@+id/login"
+            android:icon="@drawable/ic_account_circle_black_48dp"
+            android:title="@string/action_sign_in" />
+
+        <item
+            android:id="@+id/profile"
+            android:icon="@drawable/ic_account_circle_black_48dp"
+            android:title="@string/view_profile" />
+
+        <item
+            android:id="@+id/logout"
+            android:icon="@drawable/ic_exit_to_app_black_48dp"
+            android:title="@string/action_sign_out" />
+    </group>
+
     <group
         android:id="@+id/nav_group"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_catalog"
+            android:icon="@android:drawable/ic_menu_add"
+            android:title="@string/guide_catalog" />
         <item
             android:id="@+id/nav_guides"
             android:icon="@android:drawable/ic_menu_help"
             android:title="@string/guides" />
         <item
-            android:id="@+id/nav_reports"
-            android:icon="@android:drawable/ic_menu_agenda"
-            android:title="@string/reports" />
+            android:id="@+id/nav_repair_history"
+            android:icon = "@drawable/ic_history_black_24dp"
+            android:title = "@string/repair_history" />
         <item
             android:id="@+id/call_dir"
             android:icon="@android:drawable/ic_menu_call"
-            android:title="@string/call_directory" />
+            android:title="@string/directory" />
     </group>
 
     <group
         android:id="@+id/opts_group"
         android:checkableBehavior="none">
         <item
-            android:id="@+id/nav_refresh"
-            android:icon="@android:drawable/stat_notify_sync_noanim"
-            android:title="@string/sync_online_resources" />
-        <item
             android:id="@+id/nav_view_tut"
             android:icon="@android:drawable/ic_menu_info_details"
             android:title="@string/view_tutorial" />
     </group>
 
-    <group android:id="@+id/acct_group">
-        <item
-            android:id="@+id/logout"
-            android:icon="@drawable/ic_exit_to_app_black_48dp"
-            android:title="@string/action_sign_out"
-            android:visible="false" />
 
+    <group android:id="@+id/feedback_group">
         <item
-            android:id="@+id/login"
-            android:icon="@drawable/ic_account_circle_black_48dp"
-            android:title="@string/action_sign_in"
-            android:visible="false" />
+            android:id="@+id/post_feedback"
+            android:icon="@android:drawable/ic_menu_send"
+            android:title="@string/action_post_app_feedback"
+            android:visible="true" />
     </group>
 
 </menu>

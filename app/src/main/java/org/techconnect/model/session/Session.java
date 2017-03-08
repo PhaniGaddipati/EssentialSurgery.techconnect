@@ -8,6 +8,7 @@ import org.techconnect.model.GraphTraversal;
 import org.techconnect.model.Vertex;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -30,69 +31,58 @@ public class Session implements Parcelable {
             return new Session[size];
         }
     };
-    private FlowChart flowchart;
+    private String id;
+    private FlowChart flowChart;
     private GraphTraversal traversal; //Step through the graph
 
     private long createdDate;
-    private String department;
-    private String modelNumber;
-    private String serialNumber;
-    private String notes;
+    private long finishedDate;
+    private String manufacturer = "";
+    private String department = "";
+    private String modelNumber = "";
+    private String serialNumber = "";
+    private String notes = "";
     private boolean finished = false;
 
     private List<String> history = new ArrayList<>(); //list of seen vertex IDs
     private List<String> optionHistory = new ArrayList<>();//list of user responses
 
 
-
     public Session(FlowChart flowchart) {
-        this.flowchart = flowchart;
+        this.createdDate = new Date().getTime();
+        this.flowChart = flowchart;
         this.traversal = new GraphTraversal(flowchart.getGraph());
         history.add(this.traversal.getCurrentVertex().getId());
     }
 
     /**
      * Build a Session from a Parcel object
+     *
      * @param in
      */
     public Session(Parcel in) {
+        this.id = in.readString();
         this.createdDate = in.readLong();
+        this.finishedDate = in.readLong();
+        finished = in.readByte() != 0;
         this.department = in.readString();
+        this.manufacturer = in.readString();
         this.modelNumber = in.readString();
         this.serialNumber = in.readString();
         this.notes = in.readString();
-        in.readList(this.history,String.class.getClassLoader());
-        in.readList(this.optionHistory,String.class.getClassLoader());
-        flowchart = in.readParcelable(FlowChart.class.getClassLoader());
-
-        //Now, just need to setup the traversal
-        traversal = new GraphTraversal(flowchart.getGraph());
-        if (history.size() > 1) {
-            //Get last vertex, that's where we're at
-            traversal.setCurrentVertex(history.get(history.size() -1));
-        }
-
+        in.readList(this.history, String.class.getClassLoader());
+        in.readList(this.optionHistory, String.class.getClassLoader());
+        this.flowChart = in.readParcelable(FlowChart.class.getClassLoader());
+        this.traversal = in.readParcelable(GraphTraversal.class.getClassLoader());
     }
 
-    /*
-    public String getReport() {
-        StringBuilder report = new StringBuilder();
-        report.append("Date: ").append(new Date(createdDate).toString()).append('\n');
-        report.append("Department: ").append(department).append('\n');
-        report.append("Notes: ").append(notes).append('\n');
-        report.append("Flowchart: ").append(flowchart.getName()).append('\n');
-        //report.append("Role: " + ((role == 0) ? "Technician" : "End User"));
-        report.append("History:\n------------------------").append("\n\n");
-        for (int i = 0; i < history.size(); i++) {
-            String question = history.get(i).getName();
-            if (question.length() > 26) {
-                question = question.substring(0, 23) + "...";
-            }
-            report.append(question).append(": ").append(optionHistory.get(i)).append("\n\n");
-        }
-        return report.toString();
+    public String getId() {
+        return this.id;
     }
-    */
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     //Save
     public long getCreatedDate() {
@@ -114,6 +104,53 @@ public class Session implements Parcelable {
         this.department = department;
     }
 
+    public String getModelNumber() {
+        return modelNumber;
+    }
+
+    public void setModelNumber(String modelNumber) {
+        this.modelNumber = modelNumber;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public List<String> getHistory() {
+        return history;
+    }
+
+    public void setHistory(List<String> hist) {
+        this.history = hist;
+    }
+
+    /**
+     * Use the current history object to restore the traversal stack object
+     */
+    public void updateHistoryStack() {
+        this.traversal.setHistoryStack(history);
+    }
+
+    public List<String> getOptionHistory() {
+        return optionHistory;
+    }
+
+    public void setOptionHistory(List<String> opt_hist) {
+        this.optionHistory = opt_hist;
+    }
 
     /**
      * Return the current vertex so it's fields can be used by different view.
@@ -123,6 +160,10 @@ public class Session implements Parcelable {
      */
     public Vertex getCurrentVertex() {
         return this.traversal.getCurrentVertex();//Simplify where this is referenced
+    }
+
+    public void setCurrentVertex(String id) {
+        this.traversal.setCurrentVertex(id);
     }
 
     /**
@@ -135,16 +176,9 @@ public class Session implements Parcelable {
     }
 
     public FlowChart getFlowchart() {
-        return flowchart;
+        return flowChart;
     }
 
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
 
     public void selectOption(String option) {
         optionHistory.add(option);
@@ -166,13 +200,6 @@ public class Session implements Parcelable {
         return traversal.hasPrevious();
     }
 
-    public void setModelNumber(String modelNumber) {
-        this.modelNumber = modelNumber;
-    }
-
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
 
     @Override
     public int describeContents() {
@@ -183,14 +210,20 @@ public class Session implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         //Decided to not write GraphTraversal object since this can be initialized from the
         //FlowChart graph object and the end of history if need be
+        parcel.writeString(id);
         parcel.writeLong(createdDate);
+        parcel.writeLong(finishedDate);
+        parcel.writeByte((byte) (finished ? 1 : 0));
         parcel.writeString(department);
+        parcel.writeString(manufacturer);
         parcel.writeString(modelNumber);
         parcel.writeString(serialNumber);
         parcel.writeString(notes);
         parcel.writeList(history);
         parcel.writeList(optionHistory);
-        parcel.writeParcelable(flowchart,0);//Just need the flowchart, not traversal
+        parcel.writeParcelable(flowChart, 0);//Just need the flowchart, not traversal
+        parcel.writeParcelable(traversal, 0);
+
     }
 
     public boolean isFinished() {
@@ -199,5 +232,22 @@ public class Session implements Parcelable {
 
     public void setFinished(boolean finished) {
         this.finished = finished;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+
+    public long getFinishedDate() {
+        return finishedDate;
+    }
+
+    public void setFinishedDate(long finishedDate) {
+        this.finishedDate = finishedDate;
     }
 }

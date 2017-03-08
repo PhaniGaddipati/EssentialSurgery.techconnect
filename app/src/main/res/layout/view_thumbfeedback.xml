@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.techconnect.views.ThumbFeedbackView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="75dp">
+
+    <ImageButton
+        android:id="@+id/upThumbButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_thumb_up_border_24dp"
+        android:background="@android:color/transparent"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_centerVertical="true"
+        android:onClick="onFeedbackClick"/>
+    <TextView
+        android:id="@+id/upCountTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Count"
+        android:layout_toRightOf="@id/upThumbButton"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp" />
+    <ImageButton
+        android:id="@+id/downThumbButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_thumb_down_border_24dp"
+        android:background="@android:color/transparent"
+        android:layout_toRightOf="@id/upCountTextView"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_centerVertical="true"
+        android:onClick="onFeedbackClick"/>
+
+    <TextView
+        android:id="@+id/downCountTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Count"
+        android:layout_toRightOf="@id/downThumbButton"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_centerVertical="true"/>
+
+
+
+
+</org.techconnect.views.ThumbFeedbackView>

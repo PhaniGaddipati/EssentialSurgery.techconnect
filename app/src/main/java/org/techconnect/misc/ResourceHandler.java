@@ -26,10 +26,6 @@ public class ResourceHandler {
         return instance;
     }
 
-    public static ResourceHandler get() {
-        return instance;
-    }
-
     public boolean hasStringResource(String tag) {
         return prefs.getString(tag, null) != null;
     }
