@@ -1,7 +1,7 @@
 package org.techconnect.activities;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -20,7 +20,7 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class ImageViewActivity extends AppCompatActivity {
+public class ImageViewActivity extends Activity {
 
     public static final String EXTRA_URL = "url";
     public static final String EXTRA_PATH = "path";
