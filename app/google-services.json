@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1015588419226",
+    "firebase_url": "https://techconnect-b1e3c.firebaseio.com",
+    "project_id": "techconnect-b1e3c",
+    "storage_bucket": "techconnect-b1e3c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015588419226:android:d49d370476bbfa9b",
+        "android_client_info": {
+          "package_name": "org.techconnect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1015588419226-3ihfls8hmulimqrndp0ns4qqfkcgamvj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.techconnect",
+            "certificate_hash": "1E63CB84AE830BDB2F02470EFCCC02B402F1D2B5"
+          }
+        },
+        {
+          "client_id": "1015588419226-p90rlb0degb9omuu9tlfs0c3uf1q7ipr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCM8lSO1AFbasPKQ_I8KiHjb1H3LoBzZds"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1015588419226-p90rlb0degb9omuu9tlfs0c3uf1q7ipr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
