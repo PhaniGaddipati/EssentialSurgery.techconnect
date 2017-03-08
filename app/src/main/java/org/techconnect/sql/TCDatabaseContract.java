@@ -79,6 +79,23 @@ public class TCDatabaseContract {
                 DOWNVOTES + " INTEGER," +
                 " FOREIGN KEY (graphId) REFERENCES " + GraphEntry.TABLE_NAME + " (_id)) WITHOUT ROWID;";
 
+        public static final String CREATE_CHART_TABLE_KITKAT = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
+                ID + " TEXT PRIMARY KEY NOT NULL UNIQUE," +
+                NAME + " TEXT," +
+                DESCRIPTION + " TEXT," +
+                UPDATED_DATE + " DATE," +
+                VERSION + " TEXT," +
+                OWNER + " TEXT," +
+                GRAPH_ID + " TEXT," +
+                ALL_RESOURCES + " TEXT," +
+                IMAGE + " TEXT," +
+                RESOURCES + " TEXT," +
+                TYPE + " TEXT," +
+                SCORE + " INTEGER," +
+                UPVOTES + " INTEGER," +
+                DOWNVOTES + " INTEGER," +
+                " FOREIGN KEY (graphId) REFERENCES " + GraphEntry.TABLE_NAME + " (_id));";
+
         public static final String UPGRADE_V1_V2_ADD_UPVOTES = "ALTER TABLE "
                 + TABLE_NAME + " ADD " + UPVOTES + " INTEGER DEFAULT 0";
         public static final String UPGRADE_V1_V2_ADD_DOWNVOTES = "ALTER TABLE "
