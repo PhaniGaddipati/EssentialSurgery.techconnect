@@ -21,11 +21,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.techconnect.R;
 import org.techconnect.activities.SessionListActivity;
 import org.techconnect.adapters.CategoryListAdapter;
-import org.techconnect.asynctasks.ExportHistoryAsyncTask;
 import org.techconnect.sql.TCDatabaseHelper;
 
 import java.util.HashMap;
@@ -297,9 +297,12 @@ public class RepairHistoryFragment extends Fragment implements
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.exportButton) {
+            /* For the sake of testing, remove the ability to send email as Robo test unable to do so
             //Start a new task to export history
             ExportHistoryAsyncTask task = new ExportHistoryAsyncTask(getContext());
             task.execute();
+            */
+            Toast.makeText(getContext(),"Export History",Toast.LENGTH_SHORT).show();
         }
     }
 }
