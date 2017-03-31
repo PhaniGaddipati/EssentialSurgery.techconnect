@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
@@ -76,7 +77,12 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sql) {
         sql.execSQL(TCDatabaseContract.UserEntry.CREATE_USER_TABLE);
-        sql.execSQL(TCDatabaseContract.ChartEntry.CREATE_CHART_TABLE);
+        //detect the current API. If KitKat or earlier, must use table without WITHOUT ROWID clause
+        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            sql.execSQL(TCDatabaseContract.ChartEntry.CREATE_CHART_TABLE_KITKAT);
+        } else {
+            sql.execSQL(TCDatabaseContract.ChartEntry.CREATE_CHART_TABLE);
+        }
         sql.execSQL(TCDatabaseContract.GraphEntry.CREATE_GRAPH_TABLE);
         sql.execSQL(TCDatabaseContract.VertexEntry.CREATE_VERTEX_TABLE);
         sql.execSQL(TCDatabaseContract.EdgeEntry.CREATE_EDGE_TABLE);

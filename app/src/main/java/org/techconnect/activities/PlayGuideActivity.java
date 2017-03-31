@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -219,6 +218,7 @@ public class PlayGuideActivity extends AppCompatActivity implements
     protected void onSaveSession() {
         if (flowChart != null) {
             //Need to check that all fields are filled out
+            /*
             if (TextUtils.isEmpty(departmentEditText.getText().toString())) {
                 departmentEditText.setError(getString(R.string.required_fields));
                 departmentEditText.requestFocus();
@@ -232,6 +232,7 @@ public class PlayGuideActivity extends AppCompatActivity implements
                 serialEditText.setError(getString(R.string.required_fields));
                 serialEditText.requestFocus();
             } else { //All necessary entries are filled
+            */
                 session.setManufacturer(manufacturerEditText.getText().toString());
                 session.setDepartment(departmentEditText.getText().toString());
                 session.setModelNumber(modelEditText.getText().toString());
@@ -257,7 +258,6 @@ public class PlayGuideActivity extends AppCompatActivity implements
                 */
                 finish();
             }
-        }
     }
 
     @OnClick(R.id.sync_button)

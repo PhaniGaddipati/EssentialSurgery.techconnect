@@ -303,6 +303,5 @@ public class RepairHistoryFragment extends Fragment implements
 
         return true;
     }
-
 }
 
