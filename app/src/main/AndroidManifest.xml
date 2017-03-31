@@ -21,19 +21,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="org.techconnect.activities.ImageViewActivity"
+            android:name=".activities.ImageViewActivity"
             android:label="Image"
             android:theme="@style/Theme.Transparent" />
         <activity
-            android:name="org.techconnect.activities.IntroTutorial"
+            android:name=".activities.IntroTutorial"
             android:label="@string/title_activity_intro_tutorial"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="org.techconnect.activities.PDFActivity"
+            android:name=".activities.PDFActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
-            android:name="org.techconnect.activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -44,37 +43,54 @@
         </activity>
 
         <service
-            android:name="org.techconnect.services.TCService"
+            android:name=".services.TCService"
             android:exported="false" />
 
         <activity
-            android:name="org.techconnect.activities.LoginActivity"
+            android:name=".activities.LoginActivity"
             android:label="@string/title_activity_login" />
         <activity
-            android:name="org.techconnect.activities.ProfileActivity"
+            android:name=".activities.ProfileActivity"
             android:label="Profile"
             android:screenOrientation="locked" />
         <activity
-            android:name="org.techconnect.activities.GuideActivity"
+            android:name=".activities.GuideActivity"
             android:label="@string/title_activity_guide"
-            android:parentActivityName="org.techconnect.activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.techconnect.activities.MainActivity" />
         </activity>
         <activity
-            android:name="org.techconnect.activities.SessionActivity"
-            android:label="@string/session_title"/>
+            android:name=".activities.SessionActivity"
+            android:label="@string/session_title" />
         <activity
-            android:name="org.techconnect.activities.PlayGuideActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:screenOrientation="locked"/>
+            android:name=".activities.PlayGuideActivity"
+            android:screenOrientation="locked"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name="org.techconnect.activities.RegisterActivity"
-            android:label="@string/register"/>
+            android:name=".activities.RegisterActivity"
+            android:label="@string/register" />
         <activity
-            android:name="org.techconnect.activities.SessionListActivity"
-            android:label="SessionList"/>
+            android:name=".activities.SelectSkillActivity"
+            android:label="@string/select_skill"></activity>
+        <activity android:name=".activities.SessionListActivity" />
+        <activity android:name=".activities.CatalogActivity" />
+        <activity
+            android:name=".activities.ContactAnExpertActivity"
+            android:label="@string/contact_an_expert"
+            android:theme="@style/Theme.AppCompat.Light.Dialog"></activity>
+        <!--
+ ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".activities.HelpActivity"
+            android:label="@string/help"></activity>
     </application>
 
 </manifest>

@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -201,11 +202,39 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.activity_guide_toolbar,menu);
+        return true;
+
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 return true;
+            case R.id.delete_guide:
+                new AlertDialog.Builder(this)
+                        .setTitle("Delete Guide")
+                        .setMessage("Would you like to delete this guide?")
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Delete guide from SQL?
+                                TCDatabaseHelper.get(getApplicationContext()).deleteChart(flowChart);
+                                Toast.makeText(getApplicationContext(),"Under Construction",Toast.LENGTH_LONG).show();
+                                dialogInterface.dismiss();
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        }).show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -284,54 +313,56 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
                     }
                 }.execute(user);
 
-                //Followed by updating the chart
-                Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", flowChart.getUpvotes(), flowChart.getDownvotes()));
-                switch (thumbFeedbackView.getCurrentState()) {
-                    case ThumbFeedbackView.STATE_UP:
-                        new PostVoteAsyncTask(flowChart.getId(), "true", AuthManager.get(this).getAuth(), false) {
-                            @Override
-                            protected void onPostExecute(FlowChart chart) {
-                                if (chart != null) {
-                                    //Update the local copy
-                                    TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
-                                    Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
-                                } else {
-                                    //Error in posting feedback
-                                    Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                //Followed by updating the chart, if the chart still exits
+                if (TCDatabaseHelper.get(this).hasChart(flowChart.getId())) {
+                    Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", flowChart.getUpvotes(), flowChart.getDownvotes()));
+                    switch (thumbFeedbackView.getCurrentState()) {
+                        case ThumbFeedbackView.STATE_UP:
+                            new PostVoteAsyncTask(flowChart.getId(), "true", AuthManager.get(this).getAuth(), false) {
+                                @Override
+                                protected void onPostExecute(FlowChart chart) {
+                                    if (chart != null) {
+                                        //Update the local copy
+                                        TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
+                                        Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
+                                    } else {
+                                        //Error in posting feedback
+                                        Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
-                        }.execute();
-                        break;
-                    case ThumbFeedbackView.STATE_DOWN:
-                        new PostVoteAsyncTask(flowChart.getId(), "false", AuthManager.get(this).getAuth(), false) {
-                            @Override
-                            protected void onPostExecute(FlowChart chart) {
-                                if (chart != null) {
-                                    //Update the local copy
-                                    TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
-                                    Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
-                                } else {
-                                    //Error in posting feedback
-                                    Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                            }.execute();
+                            break;
+                        case ThumbFeedbackView.STATE_DOWN:
+                            new PostVoteAsyncTask(flowChart.getId(), "false", AuthManager.get(this).getAuth(), false) {
+                                @Override
+                                protected void onPostExecute(FlowChart chart) {
+                                    if (chart != null) {
+                                        //Update the local copy
+                                        TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
+                                        Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
+                                    } else {
+                                        //Error in posting feedback
+                                        Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
-                        }.execute();
-                        break;
-                    case ThumbFeedbackView.STATE_NEUTRAL:
-                        new PostVoteAsyncTask(flowChart.getId(), "empty", AuthManager.get(this).getAuth(), true) {
-                            @Override
-                            protected void onPostExecute(FlowChart chart) {
-                                if (chart != null) {
-                                    //Update the local copy
-                                    TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
-                                    Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
-                                } else {
-                                    //Error in posting feedback
-                                    Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                            }.execute();
+                            break;
+                        case ThumbFeedbackView.STATE_NEUTRAL:
+                            new PostVoteAsyncTask(flowChart.getId(), "empty", AuthManager.get(this).getAuth(), true) {
+                                @Override
+                                protected void onPostExecute(FlowChart chart) {
+                                    if (chart != null) {
+                                        //Update the local copy
+                                        TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
+                                        Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
+                                    } else {
+                                        //Error in posting feedback
+                                        Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
-                        }.execute();
-                        break;
+                            }.execute();
+                            break;
+                    }
                 }
             }
         }

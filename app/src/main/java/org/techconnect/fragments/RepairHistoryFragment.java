@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -38,7 +37,6 @@ import butterknife.ButterKnife;
  * Used to facilitate accessing the repair history stored in the phone
  */
 public class RepairHistoryFragment extends Fragment implements
-        View.OnClickListener,
         TextWatcher {
 
     //States
@@ -57,8 +55,6 @@ public class RepairHistoryFragment extends Fragment implements
     ProgressBar progressBar;
     @Bind(R.id.categoryLayout)
     RelativeLayout categoryLayout;
-    @Bind(R.id.exportButton)
-    Button exportButton;
     @Bind(R.id.emptyTextView)
     TextView emptyTextView;
 
@@ -67,6 +63,7 @@ public class RepairHistoryFragment extends Fragment implements
     private CategoryListAdapter dateAdapter = new CategoryListAdapter();
     private CategoryListAdapter deviceAdapter = new CategoryListAdapter();
     private CategoryListAdapter activeAdapter = new CategoryListAdapter();
+    private boolean hasData;
     private int categoryState = STATE_DATE;
     private String[] categoryData;
     private Map<String,String> device_map;
@@ -95,15 +92,14 @@ public class RepairHistoryFragment extends Fragment implements
         if (dateAdapter.getCount() == 0 || deviceAdapter.getCount() == 0) { //no data
             emptyTextView.setVisibility(View.VISIBLE);
             categoryListView.setVisibility(View.GONE);
-            exportButton.setVisibility(View.GONE);
+            hasData = false;
+            getActivity().invalidateOptionsMenu();
         } else {
             emptyTextView.setVisibility(View.GONE);
             categoryListView.setVisibility(View.VISIBLE);
-            exportButton.setVisibility(View.VISIBLE);
+            hasData = true;
+            getActivity().invalidateOptionsMenu();
         }
-
-        //Set the click listener for the export button
-        exportButton.setOnClickListener(this);
 
         //Setup the ListView w/ adapter and itemClickListener
         switch (categoryState) {
@@ -171,11 +167,13 @@ public class RepairHistoryFragment extends Fragment implements
         if (dateAdapter.getCount() == 0 || deviceAdapter.getCount() == 0) { //no data
             emptyTextView.setVisibility(View.VISIBLE);
             categoryListView.setVisibility(View.GONE);
-            exportButton.setVisibility(View.GONE);
+            hasData = false;
+            getActivity().invalidateOptionsMenu();
         } else {
             emptyTextView.setVisibility(View.GONE);
             categoryListView.setVisibility(View.VISIBLE);
-            exportButton.setVisibility(View.VISIBLE);
+            hasData = true;
+            getActivity().invalidateOptionsMenu();
         }
 
         //Setup the ListView w/ adapter and itemClickListener
@@ -245,28 +243,34 @@ public class RepairHistoryFragment extends Fragment implements
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.activity_main_toolbar_menu, menu);
-        MenuItem item = menu.findItem(R.id.action_sort);
-        item.setVisible(true);
+        MenuItem sort_item = menu.findItem(R.id.action_sort);
 
-        switch (categoryState) { //Date
-            case STATE_DATE:
-                //Initially, will have date be the initial way to sort the sessions
-                item.getSubMenu().findItem(R.id.date_item).setChecked(true);
-                categoryState = STATE_DATE;
-                break;
-            case STATE_DEVICE:
-                item.getSubMenu().findItem(R.id.device_item).setChecked(true);
-                categoryState = STATE_DEVICE;
-                break;
-            case STATE_ACTIVE:
-                item.getSubMenu().findItem(R.id.active_item).setChecked(true);
-                categoryState = STATE_ACTIVE;
-                break;
+        if (hasData) {
+
+            switch (categoryState) { //Date
+                case STATE_DATE:
+                    //Initially, will have date be the initial way to sort the sessions
+                    sort_item.getSubMenu().findItem(R.id.date_item).setChecked(true);
+                    categoryState = STATE_DATE;
+                    break;
+                case STATE_DEVICE:
+                    sort_item.getSubMenu().findItem(R.id.device_item).setChecked(true);
+                    categoryState = STATE_DEVICE;
+                    break;
+                case STATE_ACTIVE:
+                    sort_item.getSubMenu().findItem(R.id.active_item).setChecked(true);
+                    categoryState = STATE_ACTIVE;
+                    break;
+            }
+        } else {
+            for (int i = 0; i < menu.size(); i++)
+                menu.getItem(i).setVisible(false);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         if (item.isChecked())
             item.setChecked(false);
         else
@@ -288,22 +292,16 @@ public class RepairHistoryFragment extends Fragment implements
                 setAdapter(activeAdapter);
                 categoryState = STATE_ACTIVE;
                 break;
+            case R.id.export_history:
+                Log.d("Repair History","EXPORT");
+                //Start a new task to export history
+                ExportHistoryAsyncTask task = new ExportHistoryAsyncTask(getContext());
+                task.execute();
+                break;
         }
 
 
         return true;
-    }
-
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.exportButton) {
-            /* For the sake of testing, remove the ability to send email as Robo test unable to do so
-            //Start a new task to export history
-            ExportHistoryAsyncTask task = new ExportHistoryAsyncTask(getContext());
-            task.execute();
-            */
-            Toast.makeText(getContext(),"Export History",Toast.LENGTH_SHORT).show();
-        }
     }
 }
 

@@ -31,4 +31,9 @@
         </menu>
         >
     </item>
+
+    <item android:id="@+id/export_history"
+        android:title="@string/export_history"
+        app:showAsAction="never">
+    </item>
 </menu>

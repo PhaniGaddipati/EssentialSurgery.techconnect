@@ -25,43 +25,34 @@
         android:id="@+id/nav_group"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_catalog"
-            android:icon="@android:drawable/ic_menu_add"
-            android:title="@string/guide_catalog" />
-        <item
             android:id="@+id/nav_guides"
-            android:icon="@android:drawable/ic_menu_help"
-            android:title="@string/guides"
-            android:visible="false"/>
+            android:icon="@android:drawable/ic_menu_directions"
+            android:title="Troubleshooting and Repair" />
         <item
             android:id="@+id/nav_repair_history"
             android:icon = "@drawable/ic_history_black_24dp"
             android:title = "@string/repair_history"
             android:visible="false"/>
         <item
+            android:id="@+id/contact_an_expert"
+            android:icon="@android:drawable/ic_menu_call"
+            android:title="@string/contact_an_expert"
+            android:visible="true"/>
+        <!--
+        <item
             android:id="@+id/call_dir"
             android:icon="@android:drawable/ic_menu_call"
-            android:title="@string/directory"
-            android:visible="false"/>
+            android:title="@string/directory" /> -->
     </group>
 
-    <group
-        android:id="@+id/opts_group"
-        android:checkableBehavior="none">
-        <item
-            android:id="@+id/nav_view_tut"
-            android:icon="@android:drawable/ic_menu_info_details"
-            android:title="@string/view_tutorial"
-            android:visible="false"/>
-    </group>
+    <group android:id="@+id/help_group">
 
-
-    <group android:id="@+id/feedback_group">
         <item
-            android:id="@+id/post_feedback"
-            android:icon="@android:drawable/ic_menu_send"
-            android:title="@string/action_post_app_feedback"
-            android:visible="false" />
+            android:id="@+id/get_help"
+            android:icon="@android:drawable/ic_menu_help"
+            android:title="@string/help"
+            android:visible="true" />
+
     </group>
 
 </menu>

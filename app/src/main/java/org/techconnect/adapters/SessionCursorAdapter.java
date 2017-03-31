@@ -17,8 +17,10 @@ import org.techconnect.views.SessionListItemView;
 
 public class SessionCursorAdapter extends CursorAdapter {
 
-    public SessionCursorAdapter(Context context) {
+    boolean isChecklist = false;
+    public SessionCursorAdapter(Context context, boolean isChecklist) {
         super(context, null, false); //Want it to start as null
+        this.isChecklist = isChecklist;
     }
 
     @Override
@@ -29,6 +31,7 @@ public class SessionCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         SessionListItemView sessionListItemView = (SessionListItemView) view;
+        sessionListItemView.setChecklist(isChecklist);
         sessionListItemView.setSession(TCDatabaseHelper.get(context).getSessionFromCursor(cursor));
 
     }

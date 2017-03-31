@@ -59,12 +59,6 @@ public class IntroTutorial extends AppIntro {
         addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_profile),
                 getString(R.string.tutorial_msg_profile),
                 R.drawable.tutorial_profile, darkGreen));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_directory),
-                getString(R.string.tutorial_msg_directory),
-                R.drawable.tutorial_directory, darkGreen));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_directory_skill),
-                getString(R.string.tutorial_msg_directory_skill),
-                R.drawable.tutorial_directory_skill, darkGreen));
     }
 
     @Override

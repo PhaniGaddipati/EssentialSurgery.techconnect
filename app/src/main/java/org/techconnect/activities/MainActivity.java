@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -29,10 +28,6 @@ import android.widget.TextView;
 import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.asynctasks.LogoutAsyncTask;
-import org.techconnect.asynctasks.PostAppFeedbackAsyncTask;
-import org.techconnect.dialogs.SendFeedbackDialogFragment;
-import org.techconnect.fragments.CatalogFragment;
-import org.techconnect.fragments.DirectoryFragment;
 import org.techconnect.fragments.GuidesFragment;
 import org.techconnect.fragments.RepairHistoryFragment;
 import org.techconnect.misc.ResourceHandler;
@@ -53,19 +48,17 @@ import butterknife.OnClick;
  * Entry activity.
  */
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
-    public static final int FRAGMENT_CATALOG = 0;
-    public static final int FRAGMENT_GUIDES = 1;
-    public static final int FRAGMENT_HISTORY = 2;
-    public static final int FRAGMENT_DIRECTORY = 3;
+    public static final int FRAGMENT_GUIDES = 0;
+    public static final int FRAGMENT_HISTORY = 1;
+    public static final int FRAGMENT_DIRECTORY = 2;
     private static final int PERMISSIONS_REQUEST_READ_STORAGE = 1;
     private static final String SHOWN_TUTORIAL = "org.techconnect.prefs.shownturotial";
     private static final String USER_LEARNED_DRAWER = "org.techconnect.prefs.shownturotial.learneddrawer";
     private static final String ASKED_PERMISSION = "org.techconnect.prefs.shownturotial.askedpermission";
-    private final Fragment[] FRAGMENTS = new Fragment[]{new CatalogFragment(),
-            new GuidesFragment(), new RepairHistoryFragment(), new DirectoryFragment()};
-    private final int[] FRAGMENT_MENU_IDS = new int[]{R.id.nav_catalog, R.id.nav_guides, R.id.nav_repair_history, R.id.call_dir};
+    private final Fragment[] FRAGMENTS = new Fragment[]{new GuidesFragment(), new RepairHistoryFragment()};
+    private final int[] FRAGMENT_MENU_IDS = new int[]{R.id.nav_guides, R.id.nav_repair_history};
 
     @Bind(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
@@ -83,6 +76,7 @@ public class MainActivity extends AppCompatActivity
     MenuItem logoutMenuItem;
     MenuItem loginMenuItem;
     MenuItem viewProfileMenuItem;
+
 
     private int currentFragment = -1;
     private boolean showedLogin = false;
@@ -144,7 +138,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         int numCharts = TCDatabaseHelper.get(this).getNumFlowcharts();
-        int fragToOpen = numCharts > 0 ? FRAGMENT_GUIDES : FRAGMENT_CATALOG;
+        int fragToOpen = FRAGMENT_GUIDES;
         if (savedInstanceState != null) {
             fragToOpen = savedInstanceState.getInt("frag", fragToOpen);
             showedLogin = savedInstanceState.getBoolean("shown_login");
@@ -189,7 +183,7 @@ public class MainActivity extends AppCompatActivity
                     .edit()
                     .putBoolean(SHOWN_TUTORIAL, true)
                     .apply();
-            //startActivity(new Intent(MainActivity.this, IntroTutorial.class));
+            startActivity(new Intent(MainActivity.this, IntroTutorial.class));
         } else if (!showedLogin && !AuthManager.get(this).hasAuth() && hasPermissions) {
             onShowLogin();
         } else if (hasPermissions && !userLearnedDrawer) {
@@ -265,22 +259,21 @@ public class MainActivity extends AppCompatActivity
             }
         }
         if (newFragIndex == -1) {
-            if (id == R.id.nav_view_tut) {
-                startActivity(new Intent(this, IntroTutorial.class));
-                drawer.closeDrawer(GravityCompat.START);
-                return true;
-            } else if (id == R.id.login) {
+            if (id == R.id.login) {
                 onShowLogin();
                 return true;
             } else if (id == R.id.logout) {
                 onLogout();
                 return true;
-            } else if (id == R.id.post_feedback) {
-                drawer.closeDrawer(GravityCompat.START);
-                onSendFeedback();
+            } else if (id == R.id.contact_an_expert) {
+                //drawer.closeDrawer(GravityCompat.START);
+                onPostQuestion();
                 return true;
             } else if (id == R.id.profile) {
                 onViewProfile();
+                return true;
+            } else if (id == R.id.get_help) {
+                onGetHelp();
                 return true;
             }
         }
@@ -289,6 +282,18 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private void onGetHelp() {
+        Intent intent = new Intent(MainActivity.this,HelpActivity.class);
+        startActivity(intent);
+    }
+
+    private void onPostQuestion() {
+        Intent intent = new Intent(MainActivity.this, ContactAnExpertActivity.class);
+        startActivity(intent);
+        //questionDialogFragment.show(getSupportFragmentManager(),"postQuestion");
+    }
+
+    /*
     private void onSendFeedback() {
         final SendFeedbackDialogFragment dialogFragment = new SendFeedbackDialogFragment();
         dialogFragment.setListener(new SendFeedbackDialogFragment.FeedbackListener() {
@@ -314,6 +319,7 @@ public class MainActivity extends AppCompatActivity
         });
         dialogFragment.show(getFragmentManager(), "sendFeedback");
     }
+    */
 
     private void onShowLogin() {
         showedLogin = true;

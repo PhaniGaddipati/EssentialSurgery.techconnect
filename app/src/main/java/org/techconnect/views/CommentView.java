@@ -61,7 +61,7 @@ public class CommentView extends LinearLayout {
             postDateTextView.setText("");
             commentTextView.setText("");
         } else {
-            authorTextView.setText(comment.getOwnerName());
+            //authorTextView.setText(comment.getOwnerName()); Do not want anyone to know who anyone is.
             commentTextView.setText(comment.getText());
             try {
                 postDateTextView.setText(dateFormat.format(Utils.parseISO8601Date(comment.getCreatedDate())));

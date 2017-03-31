@@ -2,6 +2,7 @@ package org.techconnect.model.session;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import org.techconnect.model.FlowChart;
 import org.techconnect.model.GraphTraversal;
@@ -37,10 +38,13 @@ public class Session implements Parcelable {
 
     private long createdDate;
     private long finishedDate;
+    private String deviceName = "";
     private String manufacturer = "";
     private String department = "";
     private String modelNumber = "";
     private String serialNumber = "";
+    private String problem = "";
+    private String solution = "";
     private String notes = "";
     private boolean finished = false;
 
@@ -51,8 +55,11 @@ public class Session implements Parcelable {
     public Session(FlowChart flowchart) {
         this.createdDate = new Date().getTime();
         this.flowChart = flowchart;
-        this.traversal = new GraphTraversal(flowchart.getGraph());
-        history.add(this.traversal.getCurrentVertex().getId());
+        if (flowchart != null) {
+            this.deviceName = flowchart.getName(); //Maybe? May reconsider this constructor
+            this.traversal = new GraphTraversal(flowchart.getGraph());
+            history.add(this.traversal.getCurrentVertex().getId());
+        }
     }
 
     /**
@@ -65,10 +72,13 @@ public class Session implements Parcelable {
         this.createdDate = in.readLong();
         this.finishedDate = in.readLong();
         finished = in.readByte() != 0;
+        this.deviceName = in.readString();
         this.department = in.readString();
         this.manufacturer = in.readString();
         this.modelNumber = in.readString();
         this.serialNumber = in.readString();
+        this.problem = in.readString();
+        this.solution = in.readString();
         this.notes = in.readString();
         in.readList(this.history, String.class.getClassLoader());
         in.readList(this.optionHistory, String.class.getClassLoader());
@@ -141,7 +151,11 @@ public class Session implements Parcelable {
      * Use the current history object to restore the traversal stack object
      */
     public void updateHistoryStack() {
-        this.traversal.setHistoryStack(history);
+        if (hasChart()) {
+            this.traversal.setHistoryStack(history);
+        } else {
+            Log.e(getClass().toString(),"No Flowchart attached");
+        }
     }
 
     public List<String> getOptionHistory() {
@@ -163,7 +177,11 @@ public class Session implements Parcelable {
     }
 
     public void setCurrentVertex(String id) {
-        this.traversal.setCurrentVertex(id);
+        if (hasChart()) {
+            this.traversal.setCurrentVertex(id);
+        } else {
+            Log.e(getClass().toString(),"No Flowchart attached");
+        }
     }
 
     /**
@@ -214,10 +232,13 @@ public class Session implements Parcelable {
         parcel.writeLong(createdDate);
         parcel.writeLong(finishedDate);
         parcel.writeByte((byte) (finished ? 1 : 0));
+        parcel.writeString(deviceName);
         parcel.writeString(department);
         parcel.writeString(manufacturer);
         parcel.writeString(modelNumber);
         parcel.writeString(serialNumber);
+        parcel.writeString(problem);
+        parcel.writeString(solution);
         parcel.writeString(notes);
         parcel.writeList(history);
         parcel.writeList(optionHistory);
@@ -242,12 +263,39 @@ public class Session implements Parcelable {
         this.manufacturer = manufacturer;
     }
 
-
     public long getFinishedDate() {
         return finishedDate;
     }
 
     public void setFinishedDate(long finishedDate) {
         this.finishedDate = finishedDate;
+    }
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public String getSolution() {
+        return solution;
+    }
+
+    public void setSolution(String solution) {
+        this.solution = solution;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    public boolean hasChart() {
+        return this.flowChart != null;
     }
 }

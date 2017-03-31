@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
 
+import org.techconnect.R;
 import org.techconnect.sql.TCDatabaseHelper;
 
 import java.io.File;
@@ -73,6 +74,8 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
 
                 //Send email based on String arguments
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT,context.getString(R.string.my_repair_history));
+                emailIntent.putExtra(Intent.EXTRA_TEXT,String.format("Hello,\nThis is my repair history on the date %s",now));
                 emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
                 emailIntent.setType("text/csv");
                 context.startActivity(Intent.createChooser(emailIntent, "Select App"));
@@ -95,7 +98,7 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
             this.dialog.dismiss();
         }
         if (success == 1){
-            Toast.makeText(this.context, "Export successful!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this.context, "Export successful!", Toast.LENGTH_SHORT).show();
         }
         else {
             Toast.makeText(this.context, "Export failed!", Toast.LENGTH_SHORT).show();

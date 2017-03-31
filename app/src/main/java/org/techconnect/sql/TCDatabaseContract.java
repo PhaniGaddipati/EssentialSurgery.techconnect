@@ -210,6 +210,7 @@ public class TCDatabaseContract {
         public static final String TABLE_NAME = "sessions";
         public static final String ID = "_id";
         public static final String CREATED_DATE = "createdDate";
+        public static final String DEVICE_NAME = "deviceName";
         public static final String FINISHED = "finished";
         public static final String FINISHED_DATE = "finishDate";
         public static final String MANUFACTURER = "manufacturer";
@@ -227,6 +228,7 @@ public class TCDatabaseContract {
                 CREATED_DATE + " DATE,\n" +
                 FINISHED + " BOOLEAN,\n" +
                 FINISHED_DATE + " DATE,\n" +
+                DEVICE_NAME + " TEXT,\n" +
                 MANUFACTURER + " TEXT,\n" +
                 DEPARTMENT + " TEXT,\n" +
                 MODEL + " TEXT,\n" +
@@ -241,6 +243,8 @@ public class TCDatabaseContract {
                 + TABLE_NAME + " ADD " + FINISHED_DATE + " DATE DEFAULT 0";
         public static final String UPGRADE_V1_V2_ADD_MANUFACTURER = "ALTER TABLE "
                 + TABLE_NAME + " ADD " + MANUFACTURER + " TEXT DEFAULT ''";
+        public static final String UPGRADE_V2_V3_ADD_DEVICE_NAME = "ALTER TABLE "
+                + TABLE_NAME + " ADD " + DEVICE_NAME + " TEXT DEFAULT ''";
 
         private SessionEntry() {
         }

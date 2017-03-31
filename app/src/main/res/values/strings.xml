@@ -39,7 +39,7 @@
     <string name="tutorial_msg_welcome">Swipe for some quick tips</string>
 
     <string name="tutorial_title_guides_home">Guide Homescreen</string>
-    <string name="tutorial_msg_guides_home">This screen contains all charts that have been downloaded to the device. Additional guides can be added by pressing the yellow button</string>
+    <string name="tutorial_msg_guides_home">This screen contains all charts that have been downloaded to the device. Additional guides can be added by pressing the button at the bottom of the screen</string>
 
     <string name="tutorial_title_device_home">View device details and start a session</string>
     <string name="tutorial_msg_device_home">Each device has a page with additional resources and comments on the guide as a whole. Press the \"Start Session\" button to begin</string>
@@ -104,7 +104,7 @@
     <string name="type">Type</string>
     <string name="score">Score</string>
     <string name="version">Version</string>
-    <string name="guides">Your Guides</string>
+    <string name="guides">Guides</string>
     <string name="error_play_guide">There was an error displaying this guide. Try re-downloading the guide</string>
     <string name="update_guide">Update Guide</string>
     <string name="serial_number">Serial Number</string>
@@ -185,4 +185,24 @@
     <string name="required_fields">All fields except Notes are required</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="search_for_skills">Search for skills</string>
+    <string name="other">Other</string>
+    <string name="select_skill">Select Skill</string>
+    <string name="post_a_question">Post a Question</string>
+    <string name="post_question">Post Question</string>
+    <string name="post_question_prompt">Select an active session to include with question (optional)</string>
+    <string name="company_email">jhu.techconnect@gmail.com</string>
+    <string name="help">Help</string>
+    <string name="contact_an_expert">Contact an Expert</string>
+    <string name="problem">Problem</string>
+    <string name="solution">Solution</string>
+    <string name="delete">Delete</string>
+    <string name="export_history">Export History</string>
+    <string name="exportResponse_autofill">Hello,\nI am unable to repair this device, can you help me?\n</string>
+    <string name="exportResponse_subject">Assistance Requested</string>
+    <string name="my_repair_history">My Repair History</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="anonymous">Anonymous</string>
 </resources>

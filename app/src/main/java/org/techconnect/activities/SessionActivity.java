@@ -5,15 +5,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
+import org.techconnect.asynctasks.ExportResponsesAsyncTask;
 import org.techconnect.dialogs.GuideFeedbackDialogFragment;
 import org.techconnect.model.session.Session;
 import org.techconnect.sql.TCDatabaseHelper;
@@ -87,9 +91,14 @@ public class SessionActivity extends AppCompatActivity {
             modelTextView.setText(session.getModelNumber());
             serialTextView.setText(session.getSerialNumber());
             dateTextView.setText(new SimpleDateFormat("MM/dd/yyyy, HH:mm:ss").format(new Date(session.getCreatedDate())));
-            deviceTextView.setText(session.getFlowchart().getName());
-            stepTextView.setText(session.getCurrentVertex().getName());
+            deviceTextView.setText(session.getDeviceName());
             notesTextView.setText(session.getNotes());
+
+            if (session.hasChart()) {
+                stepTextView.setText(session.getCurrentVertex().getName());
+            } else {
+                stepTextView.setText(String.format("%s Guide unavailable. Download guide to view current step",session.getDeviceName()));
+            }
 
             //If active, hide the "Resume Session" button as this is not possible
             if(session.isFinished()) {
@@ -120,12 +129,16 @@ public class SessionActivity extends AppCompatActivity {
 
     public void resumeSession(View view) {
         FirebaseEvents.logResumeSession(this, session);
-        Intent intent = new Intent(this, PlayGuideActivity.class);
-        intent.putExtra(PlayGuideActivity.EXTRA_SESSION, session);//Let the next activity load in the session
-        //Need another intent for result
-        Intent resultIntent = new Intent();
-        setResult(SESSION_RESUME, resultIntent);
-        startActivity(intent);
+        if (session.hasChart()) {
+            Intent intent = new Intent(this, PlayGuideActivity.class);
+            intent.putExtra(PlayGuideActivity.EXTRA_SESSION, session);//Let the next activity load in the session
+            //Need another intent for result
+            Intent resultIntent = new Intent();
+            setResult(SESSION_RESUME, resultIntent);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this,String.format("%s guide has been deleted. Cannot resume session",session.getDeviceName()),Toast.LENGTH_LONG).show();
+        }
     }
 
     public void deleteSession(View view) {
@@ -160,8 +173,18 @@ public class SessionActivity extends AppCompatActivity {
     public void onResume() {
         //Reload the session from the Database, hopefull don't need a cursor loader
         super.onResume();
-        session = TCDatabaseHelper.get(this).getSession(session.getId(),this);
+        session = TCDatabaseHelper.get(this).getSession(session.getId());
         updateViews();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_session_toolbar, menu);
+        MenuItem item = menu.findItem(R.id.actionSend);
+        item.setVisible(true);
+        return true;
     }
 
     @Override
@@ -172,6 +195,13 @@ public class SessionActivity extends AppCompatActivity {
             Intent resultIntent = new Intent();
             setResult(SESSION_STABLE, resultIntent);
             finish();
+        } else if (item.getItemId() == R.id.actionSend) {
+            //Start an intent to send a message with question/response data
+            if (session.hasChart()) {
+                new ExportResponsesAsyncTask(this).execute(session.getId());
+            } else {
+                Toast.makeText(this,String.format("%s guide has been deleted. Cannot send completed steps",session.getDeviceName()),Toast.LENGTH_LONG).show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }

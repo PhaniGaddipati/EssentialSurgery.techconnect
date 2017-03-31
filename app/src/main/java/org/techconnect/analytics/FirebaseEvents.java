@@ -125,8 +125,10 @@ public class FirebaseEvents {
     public static void logGuideFeedback(Context c, Session session, String expFeedback, String contactFeedback, String comments) {
         Bundle fbBundle = new Bundle();
         fbBundle.putLong("session_created", session.getCreatedDate());
-        fbBundle.putString(FirebaseAnalytics.Param.ITEM_ID, session.getFlowchart().getId());
-        fbBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, session.getFlowchart().getName());
+        if (session.hasChart()) {
+            fbBundle.putString(FirebaseAnalytics.Param.ITEM_ID, session.getFlowchart().getId());
+        }
+        fbBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, session.getDeviceName());
         fbBundle.putString("comments", comments);
         fbBundle.putString("experienceOpt", expFeedback);
         fbBundle.putString("contactOpt", contactFeedback);

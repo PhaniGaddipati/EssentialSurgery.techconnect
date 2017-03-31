@@ -1,6 +1,7 @@
 package org.techconnect.activities;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -18,7 +20,6 @@ import android.widget.ScrollView;
 
 import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
-import org.techconnect.dialogs.GuideFeedbackDialogFragment;
 import org.techconnect.model.FlowChart;
 import org.techconnect.model.session.Session;
 import org.techconnect.model.session.SessionListener;
@@ -30,7 +31,9 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class PlayGuideActivity extends AppCompatActivity implements SessionListener {
+public class PlayGuideActivity extends AppCompatActivity implements
+        SessionListener,
+        DialogInterface.OnDismissListener {
 
     public static final String EXTRA_CHART_ID = "org.techconnect.playguide.chartid";
     public static final String EXTRA_SESSION = "org.techconnect.playguide.session"; //Resuming from session
@@ -56,12 +59,16 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
     EditText modelEditText;
     @Bind(R.id.serial_editText)
     EditText serialEditText;
-    @Bind(R.id.notes_editText)
-    EditText notesEditText;
+    @Bind(R.id.problem_editText)
+    EditText problemEditText;
+    @Bind(R.id.solution_editText)
+    EditText solutionEditText;
 
     private GuideFlowView flowView;
     private FlowChart flowChart = null;
     private Session session;
+    private Menu mOptionsMenu;
+    private int currentLayout = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +85,10 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
             this.session = savedInstanceState.getParcelable(STATE_SESSION);
             flowView.setSession(session, this);
         }
+        if (session == null) {
+            session = new Session(flowChart); //Make a session based on flowchart, but no info on the device yet
+            flowView.setSession(session, this);
+        }
         updateViews();
     }
 
@@ -89,7 +100,8 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_play_guide, menu);
+        mOptionsMenu = menu;
+        getMenuInflater().inflate(R.menu.activity_play_guide, mOptionsMenu);
         return true;
     }
 
@@ -104,13 +116,53 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
 
     @Override
     public void onBackPressed() {
-        if (session != null && flowView.goBack()) {
-            return;
-        }
-        if (session != null) {
-            onEndSession();
+        if (currentLayout == LAYOUT_FLOW) {
+            if (session != null && flowView.goBack()) {
+                return;
+            }
+            if (session != null) {
+                onEndSession();
+            }
+        } else if (currentLayout == LAYOUT_INFO && !session.isFinished()) {
+            //We need to ask if you'd like to quit without saving, this time just leave
+            new AlertDialog.Builder(this)
+                    .setTitle("Quit Session")
+                    .setMessage("Would you like to quit this session without saving?")
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            finish();
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
+        } else if (currentLayout == LAYOUT_INFO && session.isFinished()) {
+            //We need to ask if you'd like to return to the troubleshooting session
+            new AlertDialog.Builder(this)
+                    .setTitle("Return to Troubleshooting")
+                    .setMessage("Would you like to return to troubleshooting instead of finishing this session?")
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            session.setFinished(false);
+                            session.goBack();
+                            updateViews();
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
         } else {
-            super.onBackPressed();
+                super.onBackPressed();
         }
     }
 
@@ -122,8 +174,13 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
     }
 
     private void saveSession() {
-        if (session != null) {
+        if (!session.getManufacturer().equals("")) { //This is a previously resumed session
             TCDatabaseHelper.get(this).upsertSession(session);//Write to the SQL Database
+            finish(); //End the activity
+        } else { //This is a newly paused session
+            setVisibleLayout(LAYOUT_INFO);
+            setTitle(flowChart.getName());
+            currentLayout = LAYOUT_INFO;
         }
     }
 
@@ -143,10 +200,14 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
     private void updateViews() {
         if (flowChart == null) {
             setVisibleLayout(LAYOUT_ERROR);
+            currentLayout = LAYOUT_ERROR;
             syncButton.setEnabled(true);
         } else if (session == null) {
-            setVisibleLayout(LAYOUT_INFO);
+            setVisibleLayout(LAYOUT_FLOW);
             setTitle(flowChart.getName());
+            currentLayout = LAYOUT_FLOW;
+            //setVisibleLayout(LAYOUT_INFO);
+            //setTitle(flowChart.getName());
         } else {
             setVisibleLayout(LAYOUT_FLOW);
             setTitle(flowChart.getName());
@@ -154,7 +215,7 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
     }
 
     @OnClick(R.id.start_button)
-    protected void onStartSession() {
+    protected void onSaveSession() {
         if (flowChart != null) {
             /* For the sake of testing, don't need to fill out all fields
             
@@ -172,15 +233,30 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
                 serialEditText.setError(getString(R.string.required_fields));
                 serialEditText.requestFocus();
             } else { //All necessary entries are filled
-                session = new Session(flowChart);
                 session.setManufacturer(manufacturerEditText.getText().toString());
                 session.setDepartment(departmentEditText.getText().toString());
                 session.setModelNumber(modelEditText.getText().toString());
                 session.setSerialNumber(serialEditText.getText().toString());
-                session.setNotes(notesEditText.getText().toString());
+                session.setProblem(problemEditText.getText().toString());
+                session.setSolution(solutionEditText.getText().toString());
+                //session.setNotes(notesEditText.getText().toString());
                 session.setCreatedDate(System.currentTimeMillis());
                 flowView.setSession(session, this);
-                updateViews();
+                //Force close the keyboard if open
+                View view = this.getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+                //Save the session to the database and close the activity
+                TCDatabaseHelper.get(this).upsertSession(session);
+                //Show the feedback dialog
+                /*
+                GuideFeedbackDialogFragment frag = GuideFeedbackDialogFragment.newInstance(session);
+                frag.setOnDismissListener(this);
+                frag.show(getFragmentManager(), "guide_feedback");// Fragment will terminate the activity
+                */
+                finish();
             }
             */
             session = new Session(flowChart);
@@ -211,9 +287,20 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
     }
 
     private void setVisibleLayout(int layout) {
+        currentLayout = layout;
         flowContainer.setVisibility(layout == LAYOUT_FLOW ? View.VISIBLE : View.GONE);
         sessionInfoLayout.setVisibility(layout == LAYOUT_INFO ? View.VISIBLE : View.GONE);
         errorLayout.setVisibility(layout == LAYOUT_ERROR ? View.VISIBLE : View.GONE);
+
+        if (layout == LAYOUT_INFO) {
+            //hide the cancel button in menu
+            mOptionsMenu.findItem(R.id.end_session).setVisible(false);
+        } else {
+            //Make sure that the cancel button is visible
+            if (mOptionsMenu != null) {
+                mOptionsMenu.findItem(R.id.end_session).setVisible(true);
+            }
+        }
     }
 
     @Override
@@ -229,36 +316,53 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
 
     private void endSession() {
         if (session != null) {
+            final DialogInterface.OnDismissListener dismissListener = this;
             if (!session.isFinished()) {
-                new AlertDialog.Builder(this)
+                final AlertDialog follow = new AlertDialog.Builder(this)
                         .setTitle(R.string.save_session)
                         .setMessage(R.string.save_session_msg)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 saveSession();
                                 dialog.dismiss();
-                                finish();
                             }
                         })
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                /*
                                 GuideFeedbackDialogFragment frag = GuideFeedbackDialogFragment.newInstance(session);
                                 frag.setOnDismissListener(new DialogInterface.OnDismissListener() {
                                     @Override
-                                    public void onDismiss(DialogInterface dialog) {
+                                    public void onDismiss(DialogInterface dialogInterface) {
 
-                                        finish();
                                     }
                                 });
                                 frag.show(getFragmentManager(), "guide_feedback");
+                                */
+                                dialog.dismiss();
+                                finish();
+                            }
+                        }).create();
+                new AlertDialog.Builder(this)
+                        .setTitle("Quit Session")
+                        .setMessage("Would you like to quit this session?")
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                follow.show();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }
                         }).show();
             } else {
                 saveSession();
-                GuideFeedbackDialogFragment.newInstance(session).show(getFragmentManager(), "guide_feedback");
             }
             FirebaseEvents.logSessionDuration(this, session);
         } else {
@@ -269,6 +373,16 @@ public class PlayGuideActivity extends AppCompatActivity implements SessionListe
     @Override
     public void onSessionPaused() {
         // TODO store the progress_spinner made somewhere
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialogInterface) {
+        //This means that the dialog box that came up was exited, meaning that the session is no
+        //longer finished
+        if (!session.isFinished()) {
+            //We only care in the event that the user quits while still in the middle of the session at this point
+            session.goBack();//Go back to previous question
+        }
     }
 }
 
