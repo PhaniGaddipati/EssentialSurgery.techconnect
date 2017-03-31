@@ -5,17 +5,20 @@
         <item
             android:id="@+id/login"
             android:icon="@drawable/ic_account_circle_black_48dp"
-            android:title="@string/action_sign_in" />
+            android:title="@string/action_sign_in"
+            android:visible="false"/>
 
         <item
             android:id="@+id/profile"
             android:icon="@drawable/ic_account_circle_black_48dp"
-            android:title="@string/view_profile" />
+            android:title="@string/view_profile"
+            android:visible="false"/>
 
         <item
             android:id="@+id/logout"
             android:icon="@drawable/ic_exit_to_app_black_48dp"
-            android:title="@string/action_sign_out" />
+            android:title="@string/action_sign_out"
+            android:visible="false"/>
     </group>
 
     <group
@@ -28,15 +31,18 @@
         <item
             android:id="@+id/nav_guides"
             android:icon="@android:drawable/ic_menu_help"
-            android:title="@string/guides" />
+            android:title="@string/guides"
+            android:visible="false"/>
         <item
             android:id="@+id/nav_repair_history"
             android:icon = "@drawable/ic_history_black_24dp"
-            android:title = "@string/repair_history" />
+            android:title = "@string/repair_history"
+            android:visible="false"/>
         <item
             android:id="@+id/call_dir"
             android:icon="@android:drawable/ic_menu_call"
-            android:title="@string/directory" />
+            android:title="@string/directory"
+            android:visible="false"/>
     </group>
 
     <group
@@ -45,7 +51,8 @@
         <item
             android:id="@+id/nav_view_tut"
             android:icon="@android:drawable/ic_menu_info_details"
-            android:title="@string/view_tutorial" />
+            android:title="@string/view_tutorial"
+            android:visible="false"/>
     </group>
 
 
@@ -54,7 +61,7 @@
             android:id="@+id/post_feedback"
             android:icon="@android:drawable/ic_menu_send"
             android:title="@string/action_post_app_feedback"
-            android:visible="true" />
+            android:visible="false" />
     </group>
 
 </menu>
