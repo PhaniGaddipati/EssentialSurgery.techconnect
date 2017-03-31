@@ -20,11 +20,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.techconnect.R;
 import org.techconnect.activities.SessionListActivity;
 import org.techconnect.adapters.CategoryListAdapter;
-import org.techconnect.asynctasks.ExportHistoryAsyncTask;
 import org.techconnect.sql.TCDatabaseHelper;
 
 import java.util.HashMap;
@@ -303,6 +303,5 @@ public class RepairHistoryFragment extends Fragment implements
 
         return true;
     }
-
 }
 

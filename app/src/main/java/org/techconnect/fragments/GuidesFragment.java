@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import org.techconnect.R;
+
 import org.techconnect.activities.CatalogActivity;
 import org.techconnect.activities.GuideActivity;
 import org.techconnect.adapters.FlowchartCursorAdapter;

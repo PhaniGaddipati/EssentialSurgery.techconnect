@@ -4,9 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
@@ -155,9 +154,12 @@ public class ProfileActivity extends AppCompatActivity {
 
     @OnClick(R.id.profile_email)
     public void onEmailClicked() {
+        /* For the sake of testing, do not start a new activity to email the person in the profile
         FirebaseEvents.logEmailClicked(this, head_user);
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + emailTextView.getText().toString()));
         startActivity(Intent.createChooser(emailIntent, "Email"));
+        */
+        Toast.makeText(this,"Send an email",Toast.LENGTH_SHORT).show();
     }
 
     private TableRow onRowAddRequest() {

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -218,6 +217,8 @@ public class PlayGuideActivity extends AppCompatActivity implements
     @OnClick(R.id.start_button)
     protected void onSaveSession() {
         if (flowChart != null) {
+            /* For the sake of testing, don't need to fill out all fields
+            
             //Need to check that all fields are filled out
             if (TextUtils.isEmpty(departmentEditText.getText().toString())) {
                 departmentEditText.setError(getString(R.string.required_fields));
@@ -257,6 +258,16 @@ public class PlayGuideActivity extends AppCompatActivity implements
                 */
                 finish();
             }
+            */
+            session = new Session(flowChart);
+            session.setManufacturer(manufacturerEditText.getText().toString());
+            session.setDepartment(departmentEditText.getText().toString());
+            session.setModelNumber(modelEditText.getText().toString());
+            session.setSerialNumber(serialEditText.getText().toString());
+            session.setNotes(notesEditText.getText().toString());
+            session.setCreatedDate(System.currentTimeMillis());
+            flowView.setSession(session, this);
+            updateViews();
         }
     }
 
