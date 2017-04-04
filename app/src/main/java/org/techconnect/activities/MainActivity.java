@@ -137,7 +137,6 @@ public class MainActivity extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        int numCharts = TCDatabaseHelper.get(this).getNumFlowcharts();
         int fragToOpen = FRAGMENT_GUIDES;
         if (savedInstanceState != null) {
             fragToOpen = savedInstanceState.getInt("frag", fragToOpen);

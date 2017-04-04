@@ -105,11 +105,6 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V1_V2_ADD_MANUFACTURER);
         } else if (fromV == 2 && toV == 3) {
             sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V2_V3_ADD_DEVICE_NAME);
-            //Iterate over all sessions, updating the device name information
-            for (String id: getSessions()) {
-                Session s = getSession(id);
-                upsertSession(s);
-            }
         }
     }
 
