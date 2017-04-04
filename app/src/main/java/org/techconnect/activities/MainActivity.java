@@ -155,7 +155,6 @@ public class MainActivity extends AppCompatActivity
     private void updateNav() {
         boolean loggedIn = AuthManager.get(this).hasAuth();
         User user;
-        /*
         if (loggedIn && (user = TCDatabaseHelper.get(this).getUser(AuthManager.get(this).getAuth().getUserId())) != null) {
             headerTextView.setText(user.getName());
             loginMenuItem.setVisible(false);
@@ -167,7 +166,7 @@ public class MainActivity extends AppCompatActivity
             logoutMenuItem.setVisible(false);
             viewProfileMenuItem.setVisible(false);
         }
-        */
+
     }
 
     @Override

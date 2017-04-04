@@ -5,20 +5,17 @@
         <item
             android:id="@+id/login"
             android:icon="@drawable/ic_account_circle_black_48dp"
-            android:title="@string/action_sign_in"
-            android:visible="false"/>
+            android:title="@string/action_sign_in" />
 
         <item
             android:id="@+id/profile"
             android:icon="@drawable/ic_account_circle_black_48dp"
-            android:title="@string/view_profile"
-            android:visible="false"/>
+            android:title="@string/view_profile" />
 
         <item
             android:id="@+id/logout"
             android:icon="@drawable/ic_exit_to_app_black_48dp"
-            android:title="@string/action_sign_out"
-            android:visible="false"/>
+            android:title="@string/action_sign_out" />
     </group>
 
     <group
@@ -31,13 +28,11 @@
         <item
             android:id="@+id/nav_repair_history"
             android:icon = "@drawable/ic_history_black_24dp"
-            android:title = "@string/repair_history"
-            android:visible="false"/>
+            android:title = "@string/repair_history" />
         <item
             android:id="@+id/contact_an_expert"
             android:icon="@android:drawable/ic_menu_call"
-            android:title="@string/contact_an_expert"
-            android:visible="true"/>
+            android:title="@string/contact_an_expert" />
         <!--
         <item
             android:id="@+id/call_dir"
