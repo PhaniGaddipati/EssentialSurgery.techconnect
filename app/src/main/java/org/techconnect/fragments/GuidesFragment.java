@@ -165,11 +165,9 @@ public class GuidesFragment extends Fragment
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
         if (data.getCount() == 0 && TextUtils.isEmpty(searchEditText.getText().toString())) {
-            searchLinearLayout.setVisibility(View.GONE);
             noGuidesLayout.setVisibility(View.VISIBLE);
             guidesListView.setVisibility(View.GONE);
         } else {
-            searchLinearLayout.setVisibility(View.VISIBLE);
             noGuidesLayout.setVisibility(View.GONE);
             guidesListView.setVisibility(View.VISIBLE);
         }

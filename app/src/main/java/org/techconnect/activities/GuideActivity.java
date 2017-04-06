@@ -224,7 +224,6 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Delete guide from SQL?
                                 TCDatabaseHelper.get(getApplicationContext()).deleteChart(flowChart);
-                                Toast.makeText(getApplicationContext(),"Under Construction",Toast.LENGTH_LONG).show();
                                 dialogInterface.dismiss();
                                 finish();
                             }

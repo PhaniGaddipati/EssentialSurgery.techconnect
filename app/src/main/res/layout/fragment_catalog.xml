@@ -47,6 +47,23 @@
             android:visibility="gone" />
 
         <LinearLayout
+            android:id="@+id/noNewGuidesLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/emptyTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text ="All Available Guides Downloaded to Phone"
+                android:textSize="30dp"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/failedContentLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -64,8 +81,6 @@
                 android:id="@+id/textView4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
                 android:gravity="center_horizontal"
                 android:text="@string/load_catalog_failed"
                 android:textSize="18sp" />

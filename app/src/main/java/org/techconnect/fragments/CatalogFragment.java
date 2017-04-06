@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -27,6 +28,8 @@ import org.techconnect.model.FlowChart;
 import org.techconnect.sql.TCDatabaseHelper;
 import org.techconnect.views.GuideListItemView;
 
+import java.util.ArrayList;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -41,6 +44,8 @@ public class CatalogFragment extends Fragment implements TextWatcher, View.OnCli
     SwipeRefreshLayout refreshLayout;
     @Bind(R.id.session_info_layout)
     ViewGroup contentLayout;
+    @Bind(R.id.noNewGuidesLayout)
+    LinearLayout noNewGuidesLayout;
     @Bind(R.id.progressBar)
     ProgressBar progressBar;
     @Bind(R.id.try_again_button)
@@ -141,11 +146,26 @@ public class CatalogFragment extends Fragment implements TextWatcher, View.OnCli
     }
 
     private void setCatalog(FlowChart[] flowCharts) {
-        adapter = new FlowchartAdapter(getActivity(), flowCharts);
+        //First, check to see if we already have that flowchart downloaded
+        ArrayList<FlowChart> newCharts = new ArrayList<FlowChart>();
+        for (FlowChart f : flowCharts) {
+            if (!TCDatabaseHelper.get(getActivity()).hasChart(f.getId())) {
+                newCharts.add(f);
+            }
+        }
+        FlowChart[] newChartsArray = newCharts.toArray(new FlowChart[newCharts.size()]);
+        adapter = new FlowchartAdapter(getActivity(),newChartsArray);
         guidesListView.setAdapter(adapter);
         failedContentLayout.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
-        contentLayout.setVisibility(View.VISIBLE);
+        //If no new guides, let the user know
+        if (newChartsArray.length == 0) {
+            noNewGuidesLayout.setVisibility(View.VISIBLE);
+            contentLayout.setVisibility(View.GONE);
+        } else {
+            noNewGuidesLayout.setVisibility(View.GONE);
+            contentLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
