@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class TCDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "FlowChart.db";
     private static TCDatabaseHelper instance = null;
     private Context context;
@@ -92,7 +92,7 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sql, int fromV, int toV) {
-        if (fromV == 1 && toV == 2) {
+        if (fromV < 2) {
             // User: Add upcharts, downcharts
             // Chart: Add upvotes, downvotes
             // Session: finishedDate, manufacturer
@@ -103,8 +103,13 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             sql.execSQL(ChartEntry.UPGRADE_V1_V2_ADD_UPVOTES);
             sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V1_V2_ADD_FINISHED_DATE);
             sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V1_V2_ADD_MANUFACTURER);
-        } else if (fromV == 2 && toV == 3) {
+        }
+        if (fromV < 3) {
             sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V2_V3_ADD_DEVICE_NAME);
+        }
+        if (fromV < 4) {
+            sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V2_V3_ADD_PROBLEM);
+            sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V2_V3_ADD_SOLUTION);
         }
     }
 
@@ -739,6 +744,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             s.setDepartment(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.DEPARTMENT)));
             s.setModelNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MODEL)));
             s.setSerialNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SERIAL)));
+            s.setProblem(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.PROBLEM)));
+            s.setSolution(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SOLUTION)));
             s.setNotes(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.NOTES)));
             s.setFinished(c.getInt(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FINISHED)) != 0);
 
@@ -806,6 +813,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             s.setDepartment(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.DEPARTMENT)));
             s.setModelNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MODEL)));
             s.setSerialNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SERIAL)));
+            s.setProblem(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.PROBLEM)));
+            s.setSolution(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SOLUTION)));
             s.setNotes(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.NOTES)));
             s.setFinished(c.getInt(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FINISHED)) != 0);
 
@@ -999,8 +1008,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
     public void writeRepairHistoryToFile(CSVWriter writer) {
         //Choose columns appropriately
         String[] columnsSelect = {TCDatabaseContract.SessionEntry.DEVICE_NAME, TCDatabaseContract.SessionEntry.CREATED_DATE, TCDatabaseContract.SessionEntry.FINISHED_DATE, TCDatabaseContract.SessionEntry.MANUFACTURER,
-                TCDatabaseContract.SessionEntry.DEPARTMENT, TCDatabaseContract.SessionEntry.MODEL, TCDatabaseContract.SessionEntry.SERIAL, TCDatabaseContract.SessionEntry.NOTES,
-                TCDatabaseContract.SessionEntry.FINISHED};
+                TCDatabaseContract.SessionEntry.DEPARTMENT, TCDatabaseContract.SessionEntry.MODEL, TCDatabaseContract.SessionEntry.SERIAL, TCDatabaseContract.SessionEntry.PROBLEM,
+                TCDatabaseContract.SessionEntry.SOLUTION, TCDatabaseContract.SessionEntry.NOTES, TCDatabaseContract.SessionEntry.FINISHED};
 
         //Get Cursor representing data
         Cursor csvCursor = getReadableDatabase().query(TCDatabaseContract.SessionEntry.TABLE_NAME,
@@ -1008,7 +1017,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
 
         //Set Column Titles for CSV
         String[] columnTitle = {TCDatabaseContract.SessionEntry.DEVICE_NAME, TCDatabaseContract.SessionEntry.CREATED_DATE, TCDatabaseContract.SessionEntry.FINISHED_DATE, TCDatabaseContract.SessionEntry.MANUFACTURER,
-                TCDatabaseContract.SessionEntry.DEPARTMENT, TCDatabaseContract.SessionEntry.MODEL, TCDatabaseContract.SessionEntry.SERIAL, TCDatabaseContract.SessionEntry.NOTES};
+                TCDatabaseContract.SessionEntry.DEPARTMENT, TCDatabaseContract.SessionEntry.MODEL, TCDatabaseContract.SessionEntry.SERIAL, TCDatabaseContract.SessionEntry.PROBLEM,
+                TCDatabaseContract.SessionEntry.SOLUTION, TCDatabaseContract.SessionEntry.NOTES};
 
         //Start writing the table
         writer.writeNext(columnTitle);
@@ -1026,7 +1036,7 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             }
 
             String[] entry = {device, dateCreated, dateFinished, csvCursor.getString(3), csvCursor.getString(4), csvCursor.getString(5), csvCursor.getString(6),
-                    csvCursor.getString(7)};
+                    csvCursor.getString(7), csvCursor.getString(8), csvCursor.getString(9) };
             writer.writeNext(entry);
         }
 
@@ -1081,6 +1091,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         s.setDepartment(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.DEPARTMENT)));
         s.setModelNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.MODEL)));
         s.setSerialNumber(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SERIAL)));
+        s.setProblem(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.PROBLEM)));
+        s.setSolution(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.SOLUTION)));
         s.setNotes(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.NOTES)));
         s.setFinished(c.getInt(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FINISHED)) != 0);
 
@@ -1117,6 +1129,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         sessionContentValues.put(TCDatabaseContract.SessionEntry.DEPARTMENT, s.getDepartment());
         sessionContentValues.put(TCDatabaseContract.SessionEntry.MODEL, s.getModelNumber());
         sessionContentValues.put(TCDatabaseContract.SessionEntry.SERIAL, s.getSerialNumber());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.PROBLEM,s.getProblem());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.SOLUTION,s.getSolution());
         sessionContentValues.put(TCDatabaseContract.SessionEntry.NOTES, s.getNotes());
 
         //Generate a comma separated list of strings for the two history entries

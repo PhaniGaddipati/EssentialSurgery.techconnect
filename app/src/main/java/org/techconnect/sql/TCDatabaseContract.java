@@ -217,6 +217,8 @@ public class TCDatabaseContract {
         public static final String DEPARTMENT = "department";
         public static final String MODEL = "modelNumber";
         public static final String SERIAL = "serialNumber";
+        public static final String PROBLEM = "problem";
+        public static final String SOLUTION = "solution";
         public static final String NOTES = "notes";
         public static final String HISTORY = "history";
         public static final String OPTION_HISTORY = "optionHistory";
@@ -233,6 +235,8 @@ public class TCDatabaseContract {
                 DEPARTMENT + " TEXT,\n" +
                 MODEL + " TEXT,\n" +
                 SERIAL + " TEXT,\n" +
+                PROBLEM + " TEXT,\n" +
+                SOLUTION + " TEXT,\n" +
                 NOTES + " TEXT,\n" +
                 HISTORY + " TEXT,\n" +
                 OPTION_HISTORY + " TEXT,\n" +
@@ -245,6 +249,11 @@ public class TCDatabaseContract {
                 + TABLE_NAME + " ADD " + MANUFACTURER + " TEXT DEFAULT ''";
         public static final String UPGRADE_V2_V3_ADD_DEVICE_NAME = "ALTER TABLE "
                 + TABLE_NAME + " ADD " + DEVICE_NAME + " TEXT DEFAULT ''";
+        public static final String UPGRADE_V2_V3_ADD_PROBLEM = "ALTER TABLE "
+                + TABLE_NAME + " ADD " + PROBLEM + " TEXT DEFAULT ''";
+        public static final String UPGRADE_V2_V3_ADD_SOLUTION = "ALTER TABLE "
+                + TABLE_NAME + " ADD " + SOLUTION + " TEXT DEFAULT ''";
+
 
         private SessionEntry() {
         }
