@@ -217,7 +217,7 @@ public class SessionListActivity extends AppCompatActivity implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == VIEW_SESSION_REQUEST) {
-            if (resultCode == Activity.RESULT_CANCELED) {
+            if (resultCode == Activity.RESULT_CANCELED || resultCode == SessionActivity.SESSION_RESUME) {
                 //Need to update listview
                 progressBar.setVisibility(View.VISIBLE);
                 sessionListView.setVisibility(View.GONE);

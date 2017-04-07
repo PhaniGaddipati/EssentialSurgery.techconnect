@@ -73,13 +73,13 @@
             android:label="@string/register" />
         <activity
             android:name=".activities.SelectSkillActivity"
-            android:label="@string/select_skill"></activity>
+            android:label="@string/select_skill" />
         <activity android:name=".activities.SessionListActivity" />
         <activity android:name=".activities.CatalogActivity" />
         <activity
             android:name=".activities.ContactAnExpertActivity"
             android:label="@string/contact_an_expert"
-            android:theme="@style/Theme.AppCompat.Light.Dialog"></activity>
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -90,7 +90,10 @@
 
         <activity
             android:name=".activities.HelpActivity"
-            android:label="@string/help"></activity>
+            android:label="@string/help" />
+        <activity
+            android:name=".activities.EditSessionActivity"
+            android:label="Edit Session"/>
     </application>
 
 </manifest>

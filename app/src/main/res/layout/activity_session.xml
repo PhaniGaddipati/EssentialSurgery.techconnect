@@ -191,12 +191,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:layout_above="@+id/deleteButton"
+        android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"
         android:text="@string/resume_session"
         android:textColor="?android:attr/colorForegroundInverse"
         android:onClick="resumeSession"/>
 
+    <!-- android:layout_above="@+id/deleteButton" -->
+
+    <!--
     <Button
         android:id="@+id/deleteButton"
         android:layout_width="match_parent"
@@ -207,5 +210,6 @@
         android:text="@string/delete_session"
         android:textColor="?android:attr/colorForegroundInverse"
         android:onClick="deleteSession"/>
+        -->
 
 </RelativeLayout>

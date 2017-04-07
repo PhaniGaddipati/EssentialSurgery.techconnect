@@ -36,31 +36,19 @@
 
     <!-- Into Tutorial Strings -->
     <string name="tutorial_title_welcome">Welcome to TechConnect!</string>
-    <string name="tutorial_msg_welcome">Swipe for some quick tips</string>
+    <string name="tutorial_msg_welcome">We’re here to help you with equipment repair. Please swipe through the next couple of screens to learn about the features of this app</string>
 
-    <string name="tutorial_title_guides_home">Guide Homescreen</string>
-    <string name="tutorial_msg_guides_home">This screen contains all charts that have been downloaded to the device. Additional guides can be added by pressing the button at the bottom of the screen</string>
+    <string name="tutorial_title_guides_home">Troubleshooting and Repair Guides</string>
+    <string name="tutorial_msg_guides_home">Step through general troubleshooting guides to assist in the identification of problems and solutions for your broken equipment.</string>
 
-    <string name="tutorial_title_device_home">View device details and start a session</string>
-    <string name="tutorial_msg_device_home">Each device has a page with additional resources and comments on the guide as a whole. Press the \"Start Session\" button to begin</string>
+    <string name="tutorial_msg_history_home">Troubleshooting sessions can be saved to your phone to generate a history of all your work tickets completed in TechConnect.</string>
 
-    <string name="tutorial_title_step">Start Session and Begin Troubleshooting</string>
-    <string name="tutorial_msg_step">Each troubleshooting step contains instructions on what to do next during the repair</string>
+    <string name="tutorial_msg_contact_home">Stuck on a repair? Ask an expert! Send us an email with the details of your broken equipiment and we will forward your question to a group of experts to help.</string>
 
-    <string name="tutorial_title_step_details">Comments and Resources on Each Step</string>
-    <string name="tutorial_msg_step_details">Users have the ability to comment on any step of the chart. In addition, resources relevant to the step may be provided</string>
+    <string name="tutorial_title_final">You\'re Done!</string>
+    <string name="tutorial_msg_final">Thank you for using TechConnect. We hope that we are able to help you in your repairs.</string>
 
-    <string name="tutorial_title_hamburger">Other Features</string>
-    <string name="tutorial_msg_hamburger">Other than the guides, you have access to other fuctions from the main menu including your profile and a directory</string>
-
-    <string name="tutorial_title_profile">Profile Page</string>
-    <string name="tutorial_msg_profile">You can view and edit your profile page</string>
-
-    <string name="tutorial_title_directory">User Directory</string>
-    <string name="tutorial_msg_directory">The directory allows you to connect with other technicians in order to get help on a repair</string>
-
-    <string name="tutorial_title_directory_skill">Search by Skill or Name</string>
-    <string name="tutorial_msg_directory_skill">The search bar allows you to search for technicians either by name or by a particular skill</string>
+    <!-- -->
 
     <string name="click_im_preview">Click an image preview to zoom in</string>
     <string name="loading_resources">Loading Resources</string>
@@ -98,7 +86,7 @@
     <string name="guide_catalog">Guide Catalog</string>
     <string name="available_guides">Available Guides</string>
     <string name="no_guides">No guides have been downloaded yet</string>
-    <string name="download_guides">Download Guides</string>
+    <string name="download_guides">Download More Guides</string>
     <string name="title_activity_guide">Your Guide</string>
     <string name="description">Description</string>
     <string name="type">Type</string>
@@ -205,4 +193,6 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="anonymous">Anonymous</string>
+    <string name="edit">Edit</string>
+    <string name="repair_info">Repair Information</string>
 </resources>
