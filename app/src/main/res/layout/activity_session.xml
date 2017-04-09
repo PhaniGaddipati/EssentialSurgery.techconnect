@@ -6,7 +6,7 @@
     <ScrollView
         android:id="@+id/sessionScrollView"
         android:layout_width="match_parent"
-        android:layout_height="380dp">
+        android:layout_height="440dp">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -164,6 +164,48 @@
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/problem_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:text="@string/problem"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <TextView
+                android:id="@+id/problem_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="4dp"
+                android:text="TextView"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/solution_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:text="@string/solution"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <TextView
+                android:id="@+id/solution_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="4dp"
+                android:text="TextView"
+                android:textSize="16sp" />
+
+            <TextView
                 android:id="@+id/notes_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -183,6 +225,8 @@
                 android:layout_marginTop="4dp"
                 android:text="TextView"
                 android:textSize="16sp" />
+
+
         </LinearLayout>
     </ScrollView>
 
@@ -197,19 +241,5 @@
         android:textColor="?android:attr/colorForegroundInverse"
         android:onClick="resumeSession"/>
 
-    <!-- android:layout_above="@+id/deleteButton" -->
-
-    <!--
-    <Button
-        android:id="@+id/deleteButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:layout_alignParentBottom="true"
-        android:background= "@android:color/darker_gray"
-        android:text="@string/delete_session"
-        android:textColor="?android:attr/colorForegroundInverse"
-        android:onClick="deleteSession"/>
-        -->
 
 </RelativeLayout>

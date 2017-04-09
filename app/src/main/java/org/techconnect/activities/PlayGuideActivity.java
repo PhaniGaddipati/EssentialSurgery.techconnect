@@ -63,6 +63,8 @@ public class PlayGuideActivity extends AppCompatActivity implements
     EditText problemEditText;
     @Bind(R.id.solution_editText)
     EditText solutionEditText;
+    @Bind(R.id.notes_editText)
+    EditText notesEditText;
 
     private GuideFlowView flowView;
     private FlowChart flowChart = null;
@@ -239,7 +241,7 @@ public class PlayGuideActivity extends AppCompatActivity implements
                 session.setSerialNumber(serialEditText.getText().toString());
                 session.setProblem(problemEditText.getText().toString());
                 session.setSolution(solutionEditText.getText().toString());
-                //session.setNotes(notesEditText.getText().toString());
+                session.setNotes(notesEditText.getText().toString());
                 session.setCreatedDate(System.currentTimeMillis());
                 flowView.setSession(session, this);
                 //Force close the keyboard if open

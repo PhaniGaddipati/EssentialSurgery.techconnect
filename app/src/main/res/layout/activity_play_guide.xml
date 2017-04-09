@@ -137,6 +137,23 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColorHint="?android:attr/textColorHint">
+
+                <EditText
+                    android:id="@+id/notes_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/notes"
+                    android:inputType="textMultiLine"
+                    android:textColor="?android:attr/colorForeground"
+                    android:textSize="16sp" />
+
+            </android.support.design.widget.TextInputLayout>
+
             <Button
                 android:id="@+id/start_button"
                 android:layout_width="match_parent"

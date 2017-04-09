@@ -67,6 +67,10 @@ public class SessionActivity extends AppCompatActivity {
     TextView stepTextView;
     @Bind(R.id.notes_textView)
     TextView notesTextView;
+    @Bind(R.id.problem_textView)
+    TextView problemTextView;
+    @Bind(R.id.solution_textView)
+    TextView solutionTextView;
     @Bind(R.id.resumeButton)
     Button resumeButton;
     /*
@@ -101,6 +105,8 @@ public class SessionActivity extends AppCompatActivity {
             serialTextView.setText(session.getSerialNumber());
             dateTextView.setText(new SimpleDateFormat("MM/dd/yyyy, HH:mm:ss").format(new Date(session.getCreatedDate())));
             deviceTextView.setText(session.getDeviceName());
+            problemTextView.setText(session.getProblem());
+            solutionTextView.setText(session.getSolution());
             notesTextView.setText(session.getNotes());
 
             if (session.hasChart()) {
