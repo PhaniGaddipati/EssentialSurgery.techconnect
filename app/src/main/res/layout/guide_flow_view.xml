@@ -26,13 +26,6 @@
                 android:focusable="true">
 
                 <TextView
-                    android:id="@+id/disclaimer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="INVESTIGATIONAL APPLICATION: Please use best judgement to determine whether the device is fully operational before returning to service."
-                    android:background="@android:color/holo_orange_light"/>
-
-                <TextView
                     android:id="@+id/question_textView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

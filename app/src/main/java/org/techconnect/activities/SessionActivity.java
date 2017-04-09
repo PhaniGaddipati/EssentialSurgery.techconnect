@@ -18,7 +18,6 @@ import android.widget.Toast;
 import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
 import org.techconnect.asynctasks.ExportResponsesAsyncTask;
-import org.techconnect.dialogs.GuideFeedbackDialogFragment;
 import org.techconnect.model.session.Session;
 import org.techconnect.sql.TCDatabaseHelper;
 
@@ -166,6 +165,7 @@ public class SessionActivity extends AppCompatActivity {
                         FirebaseEvents.logDeleteSession(SessionActivity.this, session);
                         TCDatabaseHelper.get(SessionActivity.this).deleteSession(session);
                         dialog.dismiss();
+                        /*
                         GuideFeedbackDialogFragment frag = GuideFeedbackDialogFragment.newInstance(session);
                         frag.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
@@ -174,6 +174,8 @@ public class SessionActivity extends AppCompatActivity {
                             }
                         });
                         frag.show(getFragmentManager(), "guide_feedback");
+                        */
+                        finish();
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {

@@ -277,9 +277,18 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
 
     private void onPlay() {
         if (flowChart != null) {
-            Intent intent = new Intent(this, PlayGuideActivity.class);
+            final Intent intent = new Intent(this, PlayGuideActivity.class);
             intent.putExtra(PlayGuideActivity.EXTRA_CHART_ID, flowChart.getId());
-            startActivity(intent);
+            new AlertDialog.Builder(this)
+                    .setTitle("Investigational Application")
+                    .setMessage(R.string.disclaimer)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            startActivity(intent);
+                        }
+                    }).show();
         }
     }
 
@@ -517,6 +526,15 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
                 setUser((User) data.getParcelableExtra(EXTRA_USER));
             }
             //In theory, do not need to send another message that login failed
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (slidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+            super.onBackPressed();
         }
     }
 }

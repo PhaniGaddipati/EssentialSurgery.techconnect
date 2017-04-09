@@ -195,4 +195,5 @@
     <string name="anonymous">Anonymous</string>
     <string name="edit">Edit</string>
     <string name="repair_info">Repair Information</string>
+    <string name="disclaimer">Please use best judgement to determine if the device is working and always calibrate the device before returning it to service.</string>
 </resources>
