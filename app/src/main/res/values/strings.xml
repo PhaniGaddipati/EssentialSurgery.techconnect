@@ -92,7 +92,7 @@
     <string name="type">Type</string>
     <string name="score">Score</string>
     <string name="version">Version</string>
-    <string name="guides">Guides</string>
+    <string name="guides">Troubleshooting Guides</string>
     <string name="error_play_guide">There was an error displaying this guide. Try re-downloading the guide</string>
     <string name="update_guide">Update Guide</string>
     <string name="serial_number">Serial Number</string>
