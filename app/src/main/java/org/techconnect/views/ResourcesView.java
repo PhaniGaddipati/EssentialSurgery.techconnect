@@ -31,16 +31,24 @@ public class ResourcesView extends LinearLayout {
 
     public ResourcesView(Context context) {
         super(context);
+        //init();
     }
 
     public ResourcesView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        //init();
     }
 
     public ResourcesView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        //init();
     }
 
+    private void init() {
+        inflate(getContext(), R.layout.resources_view, this);
+        ButterKnife.bind(this);
+
+    }
     public void setResources(List<String> resources) {
         this.resources = resources;
         updateViews();

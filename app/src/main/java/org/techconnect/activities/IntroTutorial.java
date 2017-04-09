@@ -44,21 +44,15 @@ public class IntroTutorial extends AppIntro {
         addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_guides_home),
                 getString(R.string.tutorial_msg_guides_home),
                 R.drawable.tutorial_home_guides, darkGreen));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_device_home),
-                getString(R.string.tutorial_msg_device_home),
-                R.drawable.tutorial_guide_esu, darkGreen));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_step),
-                getString(R.string.tutorial_msg_step),
+        addSlide(AppIntroFragment.newInstance(getString(R.string.repair_history),
+                getString(R.string.tutorial_msg_history_home),
+                R.drawable.tutorial_guide_esu, darkGreen)); //Need to update
+        addSlide(AppIntroFragment.newInstance(getString(R.string.contact_an_expert),
+                getString(R.string.tutorial_msg_contact_home),
                 R.drawable.tutorial_step, darkGreen));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_step_details),
-                getString(R.string.tutorial_msg_step_details),
+        addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_final),
+                getString(R.string.tutorial_msg_final),
                 R.drawable.tutorial_step_detail, darkGreen));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_hamburger),
-                getString(R.string.tutorial_msg_hamburger),
-                R.drawable.tutorial_hamburger, darkGreen));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_profile),
-                getString(R.string.tutorial_msg_profile),
-                R.drawable.tutorial_profile, darkGreen));
     }
 
     @Override

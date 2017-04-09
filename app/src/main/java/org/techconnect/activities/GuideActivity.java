@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.support.design.widget.TabLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -19,12 +20,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.squareup.picasso.Picasso;
 
 import org.techconnect.R;
@@ -65,7 +69,15 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
     TextView descriptionTextView;
     @Bind(R.id.scrollView)
     ScrollView scrollView;
+    @Bind(R.id.slidingCommentLayout)
+    SlidingUpPanelLayout slidingUpPanelLayout;
+    @Bind(R.id.tabContainer)
+    FrameLayout tabContatiner;
+    @Bind(R.id.commentsResourcesTabbedView)
     CommentsResourcesTabbedView commentsResourcesTabbedView;
+    @Bind(R.id.controlButton)
+    ImageButton controlButton;
+
     ThumbFeedbackView thumbFeedbackView;
     private FlowChart flowChart;
     private User user;
@@ -80,12 +92,78 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        controlButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (slidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+                } else {
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                    controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
+                }
+            }
+        });
+        slidingUpPanelLayout.setFadeOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                swipeRefreshLayout.setEnabled( true );
+                slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+            }
+        });
 
-        commentsResourcesTabbedView = (CommentsResourcesTabbedView) getLayoutInflater()
-                .inflate(R.layout.comments_resources_tabbed_view, contentLinearLayout, false);
+        slidingUpPanelLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
 
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    //No swipe, make the button look nice
+                    swipeRefreshLayout.setEnabled(false);
+                    controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
+                } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    swipeRefreshLayout.setEnabled( true );
+                    controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+                } else if (newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
+                    switch(previousState) {
+                        case COLLAPSED:
+                            controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
+                            break;
+                        case EXPANDED:
+                            controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+                            break;
+                    }
+                }
+            }
+        });
+
+        final TabLayout tabLayout = (TabLayout) commentsResourcesTabbedView.findViewById(R.id.tab_layout);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                commentsResourcesTabbedView.setVisibleTab(tab.getPosition());
+                if (slidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                if (slidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                }
+            }
+        });
         thumbFeedbackView = (ThumbFeedbackView) getLayoutInflater().inflate(R.layout.view_thumbfeedback,contentLinearLayout,false);
-
 
         //Add Thumb up/down view prior to the tabbed view
         contentLinearLayout.addView(thumbFeedbackView);
@@ -93,18 +171,22 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
         ruler.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
         contentLinearLayout.addView(ruler,
                 new ViewGroup.LayoutParams( ViewGroup.LayoutParams.FILL_PARENT, 2));
-        contentLinearLayout.addView(commentsResourcesTabbedView);
+
+
         swipeRefreshLayout.setOnRefreshListener(this);
+
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
-                if (scrollView.getScrollY() == 0) {
+                if (scrollView.getScrollY() == 0 && slidingUpPanelLayout.getPanelState() != SlidingUpPanelLayout.PanelState.EXPANDED) {
                     swipeRefreshLayout.setEnabled(true);
                 } else {
                     swipeRefreshLayout.setEnabled(false);
                 }
             }
         });
+
+
         if (getIntent() != null && getIntent().hasExtra(EXTRA_CHART)) {
             flowChart = getIntent().getParcelableExtra(EXTRA_CHART);
             FirebaseEvents.logViewGuide(this, flowChart);

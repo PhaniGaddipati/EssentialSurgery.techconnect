@@ -36,14 +36,22 @@ public class CommentView extends LinearLayout {
 
     public CommentView(Context context) {
         super(context);
+        //init();
     }
 
     public CommentView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        //init();
     }
 
     public CommentView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        //init();
+    }
+
+    private void init() {
+        inflate(getContext(), R.layout.comment_thread_view, this);
+        ButterKnife.bind(this);
     }
 
     public Comment getComment() {

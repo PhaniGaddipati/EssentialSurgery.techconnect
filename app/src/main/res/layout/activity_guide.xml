@@ -11,61 +11,87 @@
         android:layout_height="match_parent"
         android:focusableInTouchMode="true"
         android:orientation="vertical">
-
-        <ScrollView
-            android:id="@+id/scrollView"
+        <com.sothree.slidinguppanel.SlidingUpPanelLayout
+            xmlns:sothree="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/slidingCommentLayout"
+            android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:gravity="bottom"
+            sothree:umanoPanelHeight="68dp"
+            sothree:umanoShadowHeight="4dp">
 
-            <LinearLayout
-                android:id="@+id/content_linearLayout"
+            <ScrollView
+                android:id="@+id/scrollView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginRight="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:orientation="vertical"
-                android:paddingBottom="16dp">
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_weight="1">
 
-                <ImageView
-                    android:id="@+id/header_imageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="125dp"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginTop="16dp"
-                    android:scaleType="fitCenter" />
-
-                <TextView
-                    android:id="@+id/textView16"
+                <LinearLayout
+                    android:id="@+id/content_linearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/description"
-                    android:textSize="16sp"
-                    android:textStyle="normal|bold" />
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:orientation="vertical"
+                    android:paddingBottom="16dp">
 
-                <TextView
-                    android:id="@+id/description_textView"
+                    <ImageView
+                        android:id="@+id/header_imageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="125dp"
+                        android:layout_marginBottom="16dp"
+                        android:layout_marginTop="16dp"
+                        android:scaleType="fitCenter" />
+
+                    <TextView
+                        android:id="@+id/textView16"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/description"
+                        android:textSize="16sp"
+                        android:textStyle="normal|bold" />
+
+                    <TextView
+                        android:id="@+id/description_textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="TextView"
+                        android:textSize="16sp" />
+
+                    <Button
+                        android:id="@+id/button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:layout_weight="0"
+                        android:background="@color/colorPrimary"
+                        android:text="@string/download"
+                        android:textColor="?android:attr/colorForegroundInverse" />
+                </LinearLayout>
+            </ScrollView>
+
+
+            <FrameLayout
+                android:id="@+id/tabContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.6"
+                android:gravity="center|top">
+                <include
+                    layout="@layout/comments_resources_tabbed_view"
+                    android:id="@+id/commentsResourcesTabbedView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="TextView"
-                    android:textSize="16sp" />
+                    android:layout_height="match_parent" />
+            </FrameLayout>
 
-            </LinearLayout>
-        </ScrollView>
+        </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_weight="0"
-            android:background="@color/colorPrimary"
-            android:text="@string/download"
-            android:textColor="?android:attr/colorForegroundInverse" />
+
     </LinearLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>

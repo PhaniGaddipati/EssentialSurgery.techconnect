@@ -4,13 +4,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.techconnect.R;
+import org.techconnect.adapters.CommentableAdapter;
 import org.techconnect.asynctasks.PostCommentAsyncTask;
 import org.techconnect.misc.auth.AuthManager;
 import org.techconnect.model.Comment;
@@ -37,26 +38,46 @@ public class CommentThreadView extends LinearLayout {
     ImageButton imageButton;
     @Bind(R.id.signin_to_comment_textView)
     TextView signinToCommentTextView;
+    @Bind(R.id.commentListView)
+    ListView commentListView;
 
     private Commentable commentable;
     private String chartId;
+    private CommentableAdapter adapter;
 
     public CommentThreadView(Context context) {
         super(context);
+        //init();
     }
 
     public CommentThreadView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        //init();
     }
 
     public CommentThreadView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        //init();
+    }
+
+    private void init() {
+        inflate(getContext(), R.layout.comment_thread_view, this);
+        ButterKnife.bind(this);
+        /*
+        this.header = (TextView)findViewById(R.id.header);
+        this.description = (TextView)findViewById(R.id.description);
+        this.thumbnail = (ImageView)findViewById(R.id.thumbnail);
+        this.icon = (ImageView)findViewById(R.id.icon);
+        */
     }
 
     public void setComments(String chartId, Commentable commentable) {
         this.commentable = commentable;
         this.chartId = chartId;
+        adapter = new CommentableAdapter(commentable,getContext());
+        commentListView.setAdapter(adapter);
         updateViews();
+
     }
 
     private void updateViews() {
@@ -68,13 +89,8 @@ public class CommentThreadView extends LinearLayout {
         }
         if (commentable.getComments().size() == 0) {
             addView(headerTextView);
-        }
-
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        for (Comment comment : commentable.getComments()) {
-            CommentView view = (CommentView) inflater.inflate(R.layout.comment_view, this, false);
-            view.setComment(comment);
-            addView(view);
+        } else {
+            addView(commentListView);
         }
     }
 
@@ -111,9 +127,11 @@ public class CommentThreadView extends LinearLayout {
         }
     }
 
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
     }
+
 }

@@ -41,6 +41,7 @@ dependencies {
     compile 'com.google.firebase:firebase-crash:10.0.1'
     compile 'com.opencsv:opencsv:3.8'
     compile 'me.xdrop:fuzzywuzzy:1.1.6'
+    compile 'com.sothree.slidinguppanel:library:3.3.1'
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'

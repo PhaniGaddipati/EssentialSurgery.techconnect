@@ -56,6 +56,7 @@
         <activity
             android:name=".activities.GuideActivity"
             android:label="@string/title_activity_guide"
+            android:windowSoftInputMode="adjustPan"
             android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

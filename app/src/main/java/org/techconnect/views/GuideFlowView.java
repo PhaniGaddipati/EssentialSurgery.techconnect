@@ -3,17 +3,18 @@ package org.techconnect.views;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.design.widget.TabLayout;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.squareup.picasso.Picasso;
 
 import org.techconnect.R;
@@ -35,7 +36,7 @@ import butterknife.ButterKnife;
  * The primary flowchart view. This view shows the question, details, attachments, etc.
  * This flow view updates its content based on the Flowchart_old object given.
  */
-public class GuideFlowView extends ScrollView implements View.OnClickListener {
+public class GuideFlowView extends LinearLayout implements View.OnClickListener {
 
     @Bind(R.id.question_textView)
     TextView questionTextView;
@@ -49,10 +50,15 @@ public class GuideFlowView extends ScrollView implements View.OnClickListener {
     LinearLayout imageLinearLayout;
     @Bind(R.id.img_preview_hint)
     TextView imgPreviewHintTextView;
+    @Bind(R.id.slidingCommentLayout)
+    SlidingUpPanelLayout slidingCommentLayout;
     @Bind(R.id.tabContainer)
     FrameLayout tabContainer;
-
+    @Bind(R.id.commentsResourcesTabbedView)
     CommentsResourcesTabbedView commentsResourcesTabbedView;
+    @Bind(R.id.controlButton)
+    ImageButton controlButton;
+
     private Session session;
     private SessionListener listener;
 
@@ -84,12 +90,13 @@ public class GuideFlowView extends ScrollView implements View.OnClickListener {
         updateOptions();
         backButton.setEnabled(session.hasPrevious());
 
-        tabContainer.removeAllViews();
-        commentsResourcesTabbedView = (CommentsResourcesTabbedView) LayoutInflater.from(getContext())
-                .inflate(R.layout.comments_resources_tabbed_view, tabContainer, false);
+        //tabContainer.removeAllViews();
+        //commentsResourcesTabbedView = (CommentsResourcesTabbedView) LayoutInflater.from(getContext())
+                //.inflate(R.layout.comments_resources_tabbed_view, tabContainer, false);
         commentsResourcesTabbedView.setItems(curr_step, curr_step.getResources(),
                 session.getFlowchart().getId());
-        tabContainer.addView(commentsResourcesTabbedView);
+        //tabContainer.addView(commentsResourcesTabbedView);
+
     }
 
 
@@ -180,6 +187,76 @@ public class GuideFlowView extends ScrollView implements View.OnClickListener {
         super.onFinishInflate();
         ButterKnife.bind(this);
         backButton.setOnClickListener(this);
+        controlButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (slidingCommentLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+                } else {
+                    slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                    controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
+                }
+            }
+        });
+        slidingCommentLayout.setTouchEnabled(true);//Want total control in my hands
+        slidingCommentLayout.setFadeOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+            }
+        });
+
+        slidingCommentLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    //No swipe, make the button look nice
+                    controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
+                } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+                } else if (newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
+                    switch(previousState) {
+                        case COLLAPSED:
+                            controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
+                            break;
+                        case EXPANDED:
+                            controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+                            break;
+                    }
+                }
+            }
+        });
+
+        final TabLayout tabLayout = (TabLayout) commentsResourcesTabbedView.findViewById(R.id.tab_layout);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                commentsResourcesTabbedView.setVisibleTab(tab.getPosition());
+                if (slidingCommentLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                if (slidingCommentLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                }
+            }
+        });
+
     }
 
     @Override
