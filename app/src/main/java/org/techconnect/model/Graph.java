@@ -49,7 +49,6 @@ public class Graph implements Parcelable {
                 Log.e(getClass().getName(), "Edge with nonexistant nodes: " + e.getInV() + " or " + e.getOutV());
             }
         }
-
         //Set the root ID in order for it to be readily accessible, as well as ID and Owner
         this.firstVertex = firstVertex;
     }

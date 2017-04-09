@@ -1083,7 +1083,6 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
     public Session getSessionFromCursor(Cursor c) {
         String flowchart_id = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.FLOWCHART_ID));
         FlowChart flow = getChart(flowchart_id);
-        Log.d(getClass().toString(),flow.getName());
         Session s = new Session(flow);
         s.setId(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.ID)));
         s.setCreatedDate(c.getLong(c.getColumnIndexOrThrow(TCDatabaseContract.SessionEntry.CREATED_DATE)));

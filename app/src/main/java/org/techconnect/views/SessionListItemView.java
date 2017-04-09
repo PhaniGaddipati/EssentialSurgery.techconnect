@@ -167,6 +167,7 @@ public class SessionListItemView extends LinearLayout implements Checkable {
         }
     }
 
+
     public void setChecked(boolean b) {
         sessionCheckbox.setChecked(b);
         sessionCheckbox.refreshDrawableState();

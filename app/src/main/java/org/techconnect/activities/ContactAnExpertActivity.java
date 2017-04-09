@@ -40,8 +40,11 @@ public class ContactAnExpertActivity extends AppCompatActivity implements
     Button negativeButton;
     @Bind(R.id.positiveButton)
     Button positiveButton;
+    @Bind(R.id.clearButton)
+    Button clearButton;
 
-    SessionCursorAdapter mAdapter;
+    private SessionCursorAdapter mAdapter;
+    private int mPosition = -1;
 
 
     @Override
@@ -52,6 +55,7 @@ public class ContactAnExpertActivity extends AppCompatActivity implements
 
         negativeButton.setOnClickListener(this);
         positiveButton.setOnClickListener(this);
+        clearButton.setOnClickListener(this);
         mAdapter = new SessionCursorAdapter(this, true);
         sessionListView.setAdapter(mAdapter);
         sessionListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
@@ -79,6 +83,8 @@ public class ContactAnExpertActivity extends AppCompatActivity implements
         } else if (view.getId() == R.id.negativeButton) {
             //Cancl, terminate activity
             finish();
+        } else if (view.getId() == R.id.clearButton) {
+            sessionListView.setItemChecked(-1, true);
         }
     }
 
