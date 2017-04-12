@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +27,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
@@ -146,6 +149,19 @@ public class LoginActivity extends AppCompatActivity {
 
     @OnClick(R.id.register_button)
     public void onRegister() {
+
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if (!isConnected) {
+            Toast.makeText(this, "No Internet Connection, cannot register", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Intent intent = new Intent(this, RegisterActivity.class);
         if (!TextUtils.isEmpty(mEmailView.getText())) {
             intent.putExtra(RegisterActivity.EXTRA_EMAIL, mEmailView.getText());
@@ -197,6 +213,18 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if (!isConnected) {
+            Toast.makeText(this, "No Internet Connection, Cannot Sign-In", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Hide keyboard
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
@@ -218,6 +246,9 @@ public class LoginActivity extends AppCompatActivity {
             focusView = mEmailView;
             cancel = true;
         }
+
+
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
