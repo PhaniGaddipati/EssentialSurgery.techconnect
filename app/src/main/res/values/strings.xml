@@ -96,7 +96,7 @@
     <string name="error_play_guide">There was an error displaying this guide. Try re-downloading the guide</string>
     <string name="update_guide">Update Guide</string>
     <string name="serial_number">Serial Number</string>
-    <string name="device_info">Device Information</string>
+    <string name="device_info">Enter Device Information Below If Known, then press Save Session</string>
     <string name="manufacturer">Manufacturer</string>
     <string name="model_number">Model Number</string>
     <string name="start_guide">Start Guide</string>

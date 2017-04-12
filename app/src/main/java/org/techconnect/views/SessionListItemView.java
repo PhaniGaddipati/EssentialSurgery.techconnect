@@ -141,7 +141,7 @@ public class SessionListItemView extends LinearLayout implements Checkable {
                 sessionCheckbox.setVisibility(View.VISIBLE);
             }
         } else {
-            numbersTextView.setText("No Session Attached");
+            numbersTextView.setText("");
             dateTextView.setVisibility(View.GONE);
             devImageView.setVisibility(View.GONE);
         }
