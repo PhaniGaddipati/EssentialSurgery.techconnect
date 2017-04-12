@@ -43,16 +43,16 @@ public class IntroTutorial extends AppIntro {
                 R.drawable.tech_connect_app_icon, white, black, black));
         addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_guides_home),
                 getString(R.string.tutorial_msg_guides_home),
-                R.drawable.tutorial_home_guides, darkGreen));
+                R.drawable.home_guides, darkGreen));
         addSlide(AppIntroFragment.newInstance(getString(R.string.repair_history),
                 getString(R.string.tutorial_msg_history_home),
-                R.drawable.tutorial_guide_esu, darkGreen)); //Need to update
+                R.drawable.history_date_list, darkGreen)); //Need to update
         addSlide(AppIntroFragment.newInstance(getString(R.string.contact_an_expert),
                 getString(R.string.tutorial_msg_contact_home),
-                R.drawable.tutorial_step, darkGreen));
+                R.drawable.contact_email, darkGreen));
         addSlide(AppIntroFragment.newInstance(getString(R.string.tutorial_title_final),
                 getString(R.string.tutorial_msg_final),
-                R.drawable.tutorial_step_detail, darkGreen));
+                R.drawable.tech_connect_app_icon, white,black, black));
     }
 
     @Override
