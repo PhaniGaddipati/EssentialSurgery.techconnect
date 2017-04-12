@@ -107,7 +107,9 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
         slidingUpPanelLayout.setFadeOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                swipeRefreshLayout.setEnabled( true );
+                if (scrollView.getScrollY() == 0) {
+                    swipeRefreshLayout.setEnabled(true);
+                }
                 slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
             }
@@ -126,7 +128,9 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
                     swipeRefreshLayout.setEnabled(false);
                     controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
                 } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
-                    swipeRefreshLayout.setEnabled( true );
+                    if (scrollView.getScrollY() == 0) {
+                        swipeRefreshLayout.setEnabled(true);
+                    }
                     controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
                 } else if (newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
                     switch(previousState) {

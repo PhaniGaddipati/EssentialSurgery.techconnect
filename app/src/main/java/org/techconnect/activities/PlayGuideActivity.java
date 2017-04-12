@@ -119,8 +119,14 @@ public class PlayGuideActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         if (currentLayout == LAYOUT_FLOW) {
-            if (session != null && flowView.goBack()) {
-                return;
+            if (session != null) {
+                if (!flowView.closeResourceMenu()) {
+                    if (flowView.goBack()) {
+                        return;
+                    }
+                } else {
+                    return;
+                }
             }
             if (session != null) {
                 onEndSession();

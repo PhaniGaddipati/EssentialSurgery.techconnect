@@ -274,4 +274,13 @@ public class GuideFlowView extends LinearLayout implements View.OnClickListener 
         }
         return false;
     }
+
+    public boolean closeResourceMenu() {
+        if (slidingCommentLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+            slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
