@@ -195,11 +195,21 @@ public class TCDatabaseContract {
         //Creates the Vertices Table Object
         public static final String CREATE_VERTEX_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
                 ID + " TEXT PRIMARY KEY NOT NULL UNIQUE," +
-                GRAPH_ID + " TEXT," +
                 NAME + " TEXT," +
                 DETAILS + " TEXT," +
                 RESOURCES + " TEXT," +
-                IMAGES + " TEXT, FOREIGN KEY (graphId) REFERENCES " + GraphEntry.TABLE_NAME + " (_id));";
+                IMAGES + " TEXT);";
+
+        //When we removed the graphId field
+        public static final String UPGRADE_V4_V5_REMOVE_GRAPHID =
+            "BEGIN TRANSACTION; "+
+            "CREATE TEMPORARY TABLE t1_backup(" + ID + ","+ NAME + "," + DETAILS +"," + RESOURCES + "," + IMAGES + ");" +
+            "INSERT INTO t1_backup SELECT " + ID + ","+ NAME + "," + DETAILS +"," + RESOURCES + "," + IMAGES + " FROM " + TABLE_NAME + ";"+
+            "DROP TABLE " + TABLE_NAME + ";" +
+            "CREATE TABLE " + TABLE_NAME + "(" + ID + ","+ NAME + "," + DETAILS +"," + RESOURCES + "," + IMAGES + ");" +
+            "INSERT INTO " + TABLE_NAME + " SELECT " + ID + ","+ NAME + "," + DETAILS +"," + RESOURCES + "," + IMAGES + " FROM " + TABLE_NAME + " FROM t1_backup;" +
+            "DROP TABLE t1_backup;" +
+            "COMMIT;";
 
         private VertexEntry() {
         }

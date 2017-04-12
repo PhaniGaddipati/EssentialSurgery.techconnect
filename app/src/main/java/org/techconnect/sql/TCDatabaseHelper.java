@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class TCDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "FlowChart.db";
     private static TCDatabaseHelper instance = null;
     private Context context;
@@ -110,6 +110,9 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         if (fromV < 4) {
             sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V2_V3_ADD_PROBLEM);
             sql.execSQL(TCDatabaseContract.SessionEntry.UPGRADE_V2_V3_ADD_SOLUTION);
+        }
+        if (fromV < 5) {
+            sql.execSQL(TCDatabaseContract.VertexEntry.UPGRADE_V4_V5_REMOVE_GRAPHID);
         }
     }
 
@@ -538,9 +541,67 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         c.moveToFirst();
         if (c.getCount() > 0) {
             String firstVertex = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.GraphEntry.FIRST_VERTEX));
-            return new Graph(getVertices(id), getEdges(id), firstVertex);
+            List<Edge> edges = getEdges(id); //Get the list of edges associated with the graph
+            //Iterate over the edges in the graph, build the vertex hashmap
+            HashMap<String,Edge> E = new HashMap<>();
+            HashMap<String, Vertex> V = new HashMap<>();
+
+            for (Edge e: edges) {
+                E.put(e.getId(),e);
+                if (!V.containsKey(e.getInV())) {
+                    //Get vertex out of SQL, put in map
+                    Vertex v = getVertex(e.getInV());
+                    v.addInEdge(e.getId());
+                    V.put(e.getInV(),v);
+                } else {
+                    V.get(e.getInV()).addInEdge(e.getId());
+                }
+
+                if(!V.containsKey(e.getOutV())) {
+                    //get the vertex out of SQL, put in map
+                    Vertex v = getVertex(e.getOutV());
+                    v.addOutEdge(e.getId());
+                    V.put(e.getOutV(),v);
+                } else {
+                    V.get(e.getOutV()).addOutEdge(e.getId());
+                }
+
+            }
+            return new Graph(V, E, firstVertex);
         }
         return null;
+    }
+
+    private Vertex getVertex(String vertexId) {
+        //Get an individual vertex out of storage to put in a graph
+        String selection = TCDatabaseContract.VertexEntry.ID + " = ?";
+        String selectionArgs[] = {vertexId};
+        Cursor c = getReadableDatabase().query(TCDatabaseContract.VertexEntry.TABLE_NAME,
+                null, selection, selectionArgs, null, null, null);
+        c.moveToFirst();
+
+        //Should only have one vertex to get
+        Vertex vertex = new Vertex();
+        vertex.setId(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.VertexEntry.ID)));
+        vertex.setName(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.VertexEntry.NAME)));
+        vertex.setDetails(c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.VertexEntry.DETAILS)));
+
+        String images = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.VertexEntry.IMAGES));
+        String res = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.VertexEntry.RESOURCES));
+        if (images != null && !TextUtils.isEmpty(images.trim())) {
+            vertex.setImages(Arrays.asList(images.split(",")));
+        } else {
+            vertex.setImages(new ArrayList<String>());
+        }
+        if (res != null && !TextUtils.isEmpty(res.trim())) {
+            vertex.setResources(Arrays.asList(res.split(",")));
+        } else {
+            vertex.setResources(new ArrayList<String>());
+        }
+        c.close();
+        //Needed in order to prevent crash
+        vertex.setComments(getComments(vertex.getId(), Comment.PARENT_TYPE_VERTEX));
+        return vertex;
     }
 
     private List<Vertex> getVertices(String graphId) {
@@ -658,7 +719,9 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
     private void upsertVertex(SQLiteDatabase sql, String graphID, Vertex v) {
         ContentValues vertexContentValues = new ContentValues();
         vertexContentValues.put(TCDatabaseContract.VertexEntry.ID, v.getId());
-        vertexContentValues.put(TCDatabaseContract.VertexEntry.GRAPH_ID, graphID);
+        //I need to consider the case where vertex belongs to multiple graphs
+
+        //vertexContentValues.put(TCDatabaseContract.VertexEntry.GRAPH_ID, graphID);
         vertexContentValues.put(TCDatabaseContract.VertexEntry.NAME, v.getName());
         vertexContentValues.put(TCDatabaseContract.VertexEntry.DETAILS, v.getDetails());
 
@@ -674,6 +737,7 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         insertComments(v.getComments(), v.getId(), Comment.PARENT_TYPE_VERTEX);
 
         sql.insertWithOnConflict(TCDatabaseContract.VertexEntry.TABLE_NAME, null, vertexContentValues, SQLiteDatabase.CONFLICT_REPLACE);
+
     }
 
     /**
