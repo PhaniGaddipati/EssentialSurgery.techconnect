@@ -30,7 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TCNetworkHelper {
 
-    public static final String BASE_URL = "https://jhtechconnect.me/";
+    public static final String BASE_URL = "http://13.58.177.149/";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private Gson gson;
     private TCRetrofit service;
