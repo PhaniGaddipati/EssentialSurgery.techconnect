@@ -118,7 +118,7 @@ public class TCNetworkHelper {
     public User updateUser(User user, UserAuth userAuth) throws IOException {
         JsonObject user_obj = new JsonObject();
         user_obj.add("user", gson.toJsonTree(user));
-        Log.d("Update User",user_obj.toString());
+        Log.d("Update User", user_obj.toString());
         Response<JsendResponse> resp = service.updateUser(userAuth.getAuthToken(), userAuth.getUserId(), userAuth.getUserId(), user_obj).execute();
         lastCode = resp.code();
         if (!resp.isSuccessful()) {
@@ -131,7 +131,7 @@ public class TCNetworkHelper {
             return null;
         } else {
             JsonObject obj = resp.body().getData();
-            Log.d("Update User",obj.toString());
+            Log.d("Update User", obj.toString());
             return gson.fromJson(obj.get("user"), User.class);
         }
     }
@@ -212,10 +212,7 @@ public class TCNetworkHelper {
             for (JsonElement j : obj.get("flowcharts").getAsJsonArray()) {
                 //For sake of the virtual study, only want a couple guides to appear
                 FlowChart f = gson.fromJson(j, FlowChart.class);
-                //Only Suction machine and Autoclave
-                if (f.getId().equals("B9C9E7A23G9F3GDJ8") || f.getId().equals("JE2C662E39H5E2265")) {
-                    flowcharts.add(f);
-                }
+                flowcharts.add(f);
             }
             return flowcharts.toArray(new FlowChart[flowcharts.size()]);
         }
@@ -320,7 +317,7 @@ public class TCNetworkHelper {
     /**
      * Use this method to provide feedback on the chart (up-vote, down-vote currently)
      *
-     * @param vote - String which determines whether up-vote (true)
+     * @param vote  - String which determines whether up-vote (true)
      * @param clear - boolean that determines whether server should remove all feedback from user
      */
     public FlowChart postFeedback(String chart_id, String vote, UserAuth auth, boolean clear) throws IOException {
