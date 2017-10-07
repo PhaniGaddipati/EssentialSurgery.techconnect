@@ -8,3 +8,4 @@ gradlew
 gradlew.bat
 *.DS_Store
 **/google-services.json
+*.apk
