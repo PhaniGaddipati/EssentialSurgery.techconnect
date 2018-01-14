@@ -48,7 +48,7 @@ public class FirebaseEvents {
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, flowChart.getId());
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, flowChart.getName());
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
-        FirebaseAnalytics.getInstance(c).logEvent("session_start", bundle);
+        FirebaseAnalytics.getInstance(c).logEvent("tcsession_start", bundle);
     }
 
     public static void logEndSessionEarly(Context c, FlowChart flowChart) {
@@ -56,7 +56,7 @@ public class FirebaseEvents {
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, flowChart.getId());
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, flowChart.getName());
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
-        FirebaseAnalytics.getInstance(c).logEvent("session_end_early", bundle);
+        FirebaseAnalytics.getInstance(c).logEvent("tcsession_end_early", bundle);
     }
 
     public static void logSessionComplete(Context c, FlowChart flowChart) {
@@ -64,7 +64,7 @@ public class FirebaseEvents {
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, flowChart.getId());
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, flowChart.getName());
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
-        FirebaseAnalytics.getInstance(c).logEvent("session_complete", bundle);
+        FirebaseAnalytics.getInstance(c).logEvent("tcsession_complete", bundle);
     }
 
     public static void logSessionDuration(Context c, Session session) {
@@ -72,7 +72,25 @@ public class FirebaseEvents {
         long duration = endTime - session.getCreatedDate();
         Bundle bundle = new Bundle();
         bundle.putLong(FirebaseAnalytics.Param.VALUE, duration);
-        FirebaseAnalytics.getInstance(c).logEvent("session_duration", bundle);
+        if (session.getFlowchart() != null) {
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, session.getFlowchart().getId());
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, session.getFlowchart().getName());
+            bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
+        }
+        FirebaseAnalytics.getInstance(c).logEvent("tcsession_duration", bundle);
+    }
+
+    public static void logContiguousSessionDuration(Context c, Session session, long startTime) {
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        Bundle bundle = new Bundle();
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, duration);
+        if (session.getFlowchart() != null) {
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, session.getFlowchart().getId());
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, session.getFlowchart().getName());
+            bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
+        }
+        FirebaseAnalytics.getInstance(c).logEvent("tcsession_contiguous_duration", bundle);
     }
 
     public static void logViewProfile(Context c, User user) {
@@ -111,20 +129,20 @@ public class FirebaseEvents {
 
     public static void logDeleteSession(Context c, Session session) {
         Bundle fbBundle = new Bundle();
-        fbBundle.putLong("session_created", session.getCreatedDate());
-        fbBundle.putBoolean("session_finished", session.isFinished());
-        FirebaseAnalytics.getInstance(c).logEvent("session_deleted", fbBundle);
+        fbBundle.putLong("tcsession_created", session.getCreatedDate());
+        fbBundle.putBoolean("tcsession_finished", session.isFinished());
+        FirebaseAnalytics.getInstance(c).logEvent("tcsession_deleted", fbBundle);
     }
 
     public static void logResumeSession(Context c, Session session) {
         Bundle fbBundle = new Bundle();
-        fbBundle.putLong("session_created", session.getCreatedDate());
-        FirebaseAnalytics.getInstance(c).logEvent("session_resumed", fbBundle);
+        fbBundle.putLong("tcsession_created", session.getCreatedDate());
+        FirebaseAnalytics.getInstance(c).logEvent("tcsession_resumed", fbBundle);
     }
 
     public static void logGuideFeedback(Context c, Session session, String expFeedback, String contactFeedback, String comments) {
         Bundle fbBundle = new Bundle();
-        fbBundle.putLong("session_created", session.getCreatedDate());
+        fbBundle.putLong("tcsession_created", session.getCreatedDate());
         if (session.hasChart()) {
             fbBundle.putString(FirebaseAnalytics.Param.ITEM_ID, session.getFlowchart().getId());
         }

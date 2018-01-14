@@ -71,6 +71,7 @@ public class PlayGuideActivity extends AppCompatActivity implements
     private Session session;
     private Menu mOptionsMenu;
     private int currentLayout = 1;
+    private long startTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +93,7 @@ public class PlayGuideActivity extends AppCompatActivity implements
             flowView.setSession(session, this);
         }
         updateViews();
+        startTime = System.currentTimeMillis();
     }
 
     @Override
@@ -170,7 +172,7 @@ public class PlayGuideActivity extends AppCompatActivity implements
                         }
                     }).show();
         } else {
-                super.onBackPressed();
+            super.onBackPressed();
         }
     }
 
@@ -226,46 +228,25 @@ public class PlayGuideActivity extends AppCompatActivity implements
     protected void onSaveSession() {
         if (flowChart != null) {
             //Need to check that all fields are filled out
-            /*
-            if (TextUtils.isEmpty(departmentEditText.getText().toString())) {
-                departmentEditText.setError(getString(R.string.required_fields));
-                departmentEditText.requestFocus();
-            } else if (TextUtils.isEmpty(manufacturerEditText.getText().toString())) {
-                manufacturerEditText.setError(getString(R.string.required_fields));
-                manufacturerEditText.requestFocus();
-            } else if (TextUtils.isEmpty(modelEditText.getText().toString())) {
-                modelEditText.setError(getString(R.string.required_fields));
-                modelEditText.requestFocus();
-            } else if (TextUtils.isEmpty(serialEditText.getText().toString())) {
-                serialEditText.setError(getString(R.string.required_fields));
-                serialEditText.requestFocus();
-            } else { //All necessary entries are filled
-            */
-                session.setManufacturer(manufacturerEditText.getText().toString());
-                session.setDepartment(departmentEditText.getText().toString());
-                session.setModelNumber(modelEditText.getText().toString());
-                session.setSerialNumber(serialEditText.getText().toString());
-                session.setProblem(problemEditText.getText().toString());
-                session.setSolution(solutionEditText.getText().toString());
-                session.setNotes(notesEditText.getText().toString());
-                session.setCreatedDate(System.currentTimeMillis());
-                flowView.setSession(session, this);
-                //Force close the keyboard if open
-                View view = this.getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
-                //Save the session to the database and close the activity
-                TCDatabaseHelper.get(this).upsertSession(session);
-                //Show the feedback dialog
-                /*
-                GuideFeedbackDialogFragment frag = GuideFeedbackDialogFragment.newInstance(session);
-                frag.setOnDismissListener(this);
-                frag.show(getFragmentManager(), "guide_feedback");// Fragment will terminate the activity
-                */
-                finish();
+            session.setManufacturer(manufacturerEditText.getText().toString());
+            session.setDepartment(departmentEditText.getText().toString());
+            session.setModelNumber(modelEditText.getText().toString());
+            session.setSerialNumber(serialEditText.getText().toString());
+            session.setProblem(problemEditText.getText().toString());
+            session.setSolution(solutionEditText.getText().toString());
+            session.setNotes(notesEditText.getText().toString());
+            session.setCreatedDate(System.currentTimeMillis());
+            flowView.setSession(session, this);
+            //Force close the keyboard if open
+            View view = this.getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
+            //Save the session to the database and close the activity
+            TCDatabaseHelper.get(this).upsertSession(session);
+            finish();
+        }
     }
 
     @OnClick(R.id.sync_button)
@@ -313,7 +294,6 @@ public class PlayGuideActivity extends AppCompatActivity implements
 
     private void endSession() {
         if (session != null) {
-            final DialogInterface.OnDismissListener dismissListener = this;
             if (!session.isFinished()) {
                 final AlertDialog follow = new AlertDialog.Builder(this)
                         .setTitle(R.string.save_session)
@@ -328,16 +308,7 @@ public class PlayGuideActivity extends AppCompatActivity implements
                         .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                /*
-                                GuideFeedbackDialogFragment frag = GuideFeedbackDialogFragment.newInstance(session);
-                                frag.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                    @Override
-                                    public void onDismiss(DialogInterface dialogInterface) {
-
-                                    }
-                                });
-                                frag.show(getFragmentManager(), "guide_feedback");
-                                */
+                                FirebaseEvents.logSessionDuration(PlayGuideActivity.this, session);
                                 dialog.dismiss();
                                 finish();
                             }
@@ -359,9 +330,11 @@ public class PlayGuideActivity extends AppCompatActivity implements
                             }
                         }).show();
             } else {
+                FirebaseEvents.logSessionDuration(this, session);
                 saveSession();
             }
-            FirebaseEvents.logSessionDuration(this, session);
+            long endTime = System.currentTimeMillis();
+            FirebaseEvents.logContiguousSessionDuration(PlayGuideActivity.this, session, (endTime - startTime));
         } else {
             finish();
         }
