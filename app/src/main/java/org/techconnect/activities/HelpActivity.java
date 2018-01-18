@@ -1,8 +1,8 @@
 package org.techconnect.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +28,7 @@ public class HelpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
         ButterKnife.bind(this);
-        String[] options = new String[] {"View Tutorial","Send feedback"};
+        String[] options = new String[]{"View Tutorial", "Send App Feedback"};
         ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,options);
         ListView listview = new ListView(this);
         listview.setAdapter(adapter);
@@ -64,20 +64,18 @@ public class HelpActivity extends AppCompatActivity {
     }
 
     private void onSendFeedback() {
+        final Context context = this;
         final SendFeedbackDialogFragment dialogFragment = new SendFeedbackDialogFragment();
         dialogFragment.setListener(new SendFeedbackDialogFragment.FeedbackListener() {
             @Override
             public void onYes(String text) {
-                new PostAppFeedbackAsyncTask(HelpActivity.this) {
-                    @Override
-                    protected void onPostExecute(Boolean success) {
-                        if (success) {
-                            Snackbar.make(helpLayout, R.string.feedback_success, Snackbar.LENGTH_LONG).show();
-                        } else {
-                            Snackbar.make(helpLayout, R.string.feedback_fail, Snackbar.LENGTH_LONG).show();
-                        }
-                    }
-                }.execute(text);
+                new PostAppFeedbackAsyncTask(HelpActivity.this).execute(text);
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.putExtra(Intent.EXTRA_TEXT, text);
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{context.getString(R.string.company_email)});
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.emailFeedback_subject));
+                emailIntent.setType("text/plain");
+                context.startActivity(Intent.createChooser(emailIntent, "Select App"));
                 dialogFragment.dismiss();
             }
 

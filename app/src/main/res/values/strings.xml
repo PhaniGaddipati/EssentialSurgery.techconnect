@@ -186,7 +186,7 @@
     <string name="solution">Solution</string>
     <string name="delete">Delete</string>
     <string name="export_history">Export History</string>
-    <string name="exportResponse_autofill">Hello,\nI am unable to repair this device, can you help me?\n</string>
+    <string name="exportResponse_autofill">Hello,\nI am requesting help on this repair. Can you help?\n</string>
     <string name="exportResponse_subject">Assistance Requested</string>
     <string name="my_repair_history">My Repair History</string>
 
@@ -196,4 +196,5 @@
     <string name="edit">Edit</string>
     <string name="repair_info">Repair Information</string>
     <string name="disclaimer">Please use best judgement to determine if the device is working and always calibrate the device before returning it to service.</string>
+    <string name="emailFeedback_subject">TechConnect Feedback</string>
 </resources>

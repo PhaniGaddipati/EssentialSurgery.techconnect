@@ -33,16 +33,13 @@ import butterknife.ButterKnife;
 
 public class SessionActivity extends AppCompatActivity {
 
-    public static String EXTRA_SESSION = "org.techconnect.sessionactivity.session";
-
     //Intent Result Types
     public static final int SESSION_DELETED = 2;
     public static final int SESSION_STABLE = 3;
     public static final int SESSION_RESUME = 1;
-
     //Intent Request Types
     private static final int EDIT_SESSION_REQUEST = 0;
-
+    public static String EXTRA_SESSION = "org.techconnect.sessionactivity.session";
     //Bind all of the editable text views relevant to the session
     @Bind(R.id.sessionScrollView)
     ScrollView sessionScrollView;
@@ -221,7 +218,13 @@ public class SessionActivity extends AppCompatActivity {
             case R.id.actionSend:
                 //Start an intent to send a message with question/response data
                 if (session.hasChart()) {
-                    new ExportResponsesAsyncTask(this).execute(session.getId());
+                    String msg;
+                    if (session.isFinished()) {
+                        msg = "Hello\nI have finished the guide to repair this device.";
+                    } else {
+                        msg = "Hello,\nI am requesting help on this repair. Can you help?\n";
+                    }
+                    new ExportResponsesAsyncTask(this, msg).execute(session.getId());
                 } else {
                     Toast.makeText(this, String.format("%s guide has been deleted. Cannot send completed steps", session.getDeviceName()), Toast.LENGTH_LONG).show();
                 }
