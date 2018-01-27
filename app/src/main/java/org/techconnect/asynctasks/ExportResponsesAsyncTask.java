@@ -21,7 +21,7 @@ public class ExportResponsesAsyncTask extends AsyncTask<String, Void, Integer> {
     }
 
     public ExportResponsesAsyncTask(Context c, String msg) {
-        this.context = context;
+        this.context = c;
         this.message = msg;
     }
 
