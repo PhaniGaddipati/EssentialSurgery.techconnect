@@ -47,12 +47,11 @@ import butterknife.OnClick;
  * A login screen that offers login via emailTextView/password.
  */
 public class LoginActivity extends AppCompatActivity {
-    private static final int REGISTER_REQUEST = 1;
     //Results
     public static final int LOGIN_SUCCESS = 2;
     public static final int LOGIN_FAILURE = 3;
     public static final String LOGIN_USER = "org.techconnect.login.user";
-
+    private static final int REGISTER_REQUEST = 1;
     //Strings
     private static final String SHOW_SKIP_ALERT = "org.techconnect.login.skipalert";
 
@@ -164,10 +163,10 @@ public class LoginActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, RegisterActivity.class);
         if (!TextUtils.isEmpty(mEmailView.getText())) {
-            intent.putExtra(RegisterActivity.EXTRA_EMAIL, mEmailView.getText());
+            intent.putExtra(RegisterActivity.EXTRA_EMAIL, mEmailView.getText().toString());
         }
         if (!TextUtils.isEmpty(mPasswordView.getText())) {
-            intent.putExtra(RegisterActivity.EXTRA_PASSWORD, mPasswordView.getText());
+            intent.putExtra(RegisterActivity.EXTRA_PASSWORD, mPasswordView.getText().toString());
         }
         startActivityForResult(intent, REGISTER_REQUEST);
     }

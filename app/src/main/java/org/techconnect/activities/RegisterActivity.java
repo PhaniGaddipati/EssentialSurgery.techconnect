@@ -57,12 +57,6 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
 
-        if (getIntent() != null && getIntent().hasExtra(EXTRA_EMAIL)) {
-            emailEditText.setText(getIntent().getStringExtra(EXTRA_EMAIL));
-        }
-        if (getIntent() != null && getIntent().hasExtra(EXTRA_PASSWORD)) {
-            passwordEditText.setText(getIntent().getStringExtra(EXTRA_PASSWORD));
-        }
         if (savedInstanceState != null) {
             nameEditText.setText(savedInstanceState.getString("name"));
             emailEditText.setText(savedInstanceState.getString("emailTextView"));
@@ -70,6 +64,13 @@ public class RegisterActivity extends AppCompatActivity {
             expertisesEditText.setText(savedInstanceState.getString("skills"));
             passwordEditText.setText(savedInstanceState.getString("password"));
             confirmPasswordEditText.setText(savedInstanceState.getString("cpassword"));
+        }
+
+        if (getIntent() != null && getIntent().hasExtra(EXTRA_EMAIL)) {
+            emailEditText.setText(getIntent().getStringExtra(EXTRA_EMAIL));
+        }
+        if (getIntent() != null && getIntent().hasExtra(EXTRA_PASSWORD)) {
+            passwordEditText.setText(getIntent().getStringExtra(EXTRA_PASSWORD));
         }
     }
 
