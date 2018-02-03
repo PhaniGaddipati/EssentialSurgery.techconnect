@@ -1,10 +1,7 @@
 package org.techconnect.activities;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -13,7 +10,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,23 +22,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.squareup.picasso.Picasso;
 
 import org.techconnect.R;
 import org.techconnect.analytics.FirebaseEvents;
-import org.techconnect.asynctasks.PostVoteAsyncTask;
-import org.techconnect.asynctasks.UpdateUserAsyncTask;
 import org.techconnect.misc.ResourceHandler;
-import org.techconnect.misc.auth.AuthManager;
 import org.techconnect.model.FlowChart;
 import org.techconnect.model.User;
 import org.techconnect.services.TCService;
 import org.techconnect.sql.TCDatabaseHelper;
 import org.techconnect.views.CommentsResourcesTabbedView;
-import org.techconnect.views.ThumbFeedbackView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -78,7 +69,6 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
     @Bind(R.id.controlButton)
     ImageButton controlButton;
 
-    ThumbFeedbackView thumbFeedbackView;
     private FlowChart flowChart;
     private User user;
     private boolean inDB = true;
@@ -133,7 +123,7 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
                     }
                     controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
                 } else if (newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
-                    switch(previousState) {
+                    switch (previousState) {
                         case COLLAPSED:
                             controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
                             break;
@@ -167,14 +157,11 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
                 }
             }
         });
-        thumbFeedbackView = (ThumbFeedbackView) getLayoutInflater().inflate(R.layout.view_thumbfeedback,contentLinearLayout,false);
 
-        //Add Thumb up/down view prior to the tabbed view
-        contentLinearLayout.addView(thumbFeedbackView);
         View ruler = new View(this);
         ruler.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
         contentLinearLayout.addView(ruler,
-                new ViewGroup.LayoutParams( ViewGroup.LayoutParams.FILL_PARENT, 2));
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, 2));
 
 
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -202,23 +189,10 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
 
         if (getIntent() != null && getIntent().hasExtra(EXTRA_USER)) {
             user = getIntent().getParcelableExtra(EXTRA_USER);
-            thumbFeedbackView.setActive(true);
-            if (user.hasUpVoted(flowChart.getId())) {
-                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_UP);
-            } else if (user.hasDownVoted(flowChart.getId())) {
-                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_DOWN);
-            } else {
-                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_NEUTRAL);
-            }
         } else {
-            thumbFeedbackView.setActive(false);
             user = null;//confirm that it is null
         }
 
-
-        //Use the flowchart to determine the number of up vs. down votes
-        thumbFeedbackView.setUpCount(flowChart.getUpvotes());
-        thumbFeedbackView.setDownCount(flowChart.getDownvotes());
     }
 
     private void checkDBForFlowchart() {
@@ -253,8 +227,6 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
         }
         descriptionTextView.setText(flowChart.getDescription());
         commentsResourcesTabbedView.setItems(flowChart, flowChart.getResources(), flowChart.getId());
-        thumbFeedbackView.setUpCount(flowChart.getUpvotes());
-        thumbFeedbackView.setDownCount(flowChart.getDownvotes());
         updateHeaderImage();
     }
 
@@ -299,7 +271,7 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.activity_guide_toolbar,menu);
+        getMenuInflater().inflate(R.menu.activity_guide_toolbar, menu);
         return true;
 
     }
@@ -369,148 +341,7 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
     @Override
     public void onResume() {
         super.onResume();
-        //Check to see if login status has changed, update Feedback bar approprioately
-        if (AuthManager.get(this).hasAuth()) {
-            thumbFeedbackView.setActive(true);
-            if (user.hasUpVoted(flowChart.getId())) {
-                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_UP);
-            } else if (user.hasDownVoted(flowChart.getId())) {
-                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_DOWN);
-            } else {
-                thumbFeedbackView.setCurrentState(ThumbFeedbackView.STATE_NEUTRAL);
-            }
-        }
         updateViews();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d("Guide Activity", "Pause");
-        //Check to see whether the chart feedback changed during activity and update server
-        //Use TCNetworkHelper.postFeedback(flowchart.getId(), vote, AuthManager.get(this).getAuth())
-        // to post feedback. This function is likely going to change as we update the endpoints
-
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (activeNetwork != null &&  activeNetwork.isConnectedOrConnecting()) {
-            if (user != null) {
-                //We try to update the user in the cloud, only if it succeeds do we update user locally
-                new UpdateUserAsyncTask(this) {
-                    @Override
-                    protected void onPostExecute(User u) {
-                        if (u != null) {
-                            TCDatabaseHelper.get(getBaseContext()).upsertUser(user);
-                        }
-                    }
-                }.execute(user);
-
-                //Followed by updating the chart, if the chart still exits
-                if (TCDatabaseHelper.get(this).hasChart(flowChart.getId())) {
-                    Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", flowChart.getUpvotes(), flowChart.getDownvotes()));
-                    switch (thumbFeedbackView.getCurrentState()) {
-                        case ThumbFeedbackView.STATE_UP:
-                            new PostVoteAsyncTask(flowChart.getId(), "true", AuthManager.get(this).getAuth(), false) {
-                                @Override
-                                protected void onPostExecute(FlowChart chart) {
-                                    if (chart != null) {
-                                        //Update the local copy
-                                        TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
-                                        Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
-                                    } else {
-                                        //Error in posting feedback
-                                        Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            }.execute();
-                            break;
-                        case ThumbFeedbackView.STATE_DOWN:
-                            new PostVoteAsyncTask(flowChart.getId(), "false", AuthManager.get(this).getAuth(), false) {
-                                @Override
-                                protected void onPostExecute(FlowChart chart) {
-                                    if (chart != null) {
-                                        //Update the local copy
-                                        TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
-                                        Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
-                                    } else {
-                                        //Error in posting feedback
-                                        Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            }.execute();
-                            break;
-                        case ThumbFeedbackView.STATE_NEUTRAL:
-                            new PostVoteAsyncTask(flowChart.getId(), "empty", AuthManager.get(this).getAuth(), true) {
-                                @Override
-                                protected void onPostExecute(FlowChart chart) {
-                                    if (chart != null) {
-                                        //Update the local copy
-                                        TCDatabaseHelper.get(getBaseContext()).upsertChart(chart);
-                                        Log.d("Guide", String.format("Upvotes: %d, Downvotes: %d", chart.getUpvotes(), chart.getDownvotes()));
-                                    } else {
-                                        //Error in posting feedback
-                                        Toast.makeText(getBaseContext(), "Unable to post vote", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            }.execute();
-                            break;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Use this method to handle clicks of the buttons in the ThumbFeedbackView
-     * @param view
-     */
-    public void onFeedbackClick(View view) {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        // Need a network connection to even post feedback
-        if (activeNetwork != null &&  activeNetwork.isConnectedOrConnecting()) {
-            if (thumbFeedbackView.isActive()) {
-                if (view.getId() == R.id.upThumbButton) {
-                    user.upVote(flowChart.getId());
-                    thumbFeedbackView.upVote();
-                } else if (view.getId() == R.id.downThumbButton) {
-                    user.downVote(flowChart.getId());
-                    thumbFeedbackView.downVote();
-                }
-            } else {
-                Log.d("Guide Activity", "Would activate alert dialog");
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Please Sign in to Vote");
-                builder.setPositiveButton(R.string.action_sign_in, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = new Intent(GuideActivity.this, LoginActivity.class);
-                        startActivityForResult(intent,LOGIN_REQUEST);
-                    }
-                });
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.create().show();
-            }
-        } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Please Connect to Internet to Vote");
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
-            builder.create().show();
-        }
     }
 
     public User getUser() {
