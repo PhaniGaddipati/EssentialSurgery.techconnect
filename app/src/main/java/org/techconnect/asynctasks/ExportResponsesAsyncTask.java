@@ -41,7 +41,6 @@ public class ExportResponsesAsyncTask extends AsyncTask<String, Void, Integer> {
             //Send email based on String arguments
             Intent emailIntent = new Intent(Intent.ACTION_SEND);
             emailIntent.putExtra(Intent.EXTRA_TEXT, resp);
-            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{context.getString(R.string.company_email)});
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.exportResponse_subject));
             emailIntent.setType("text/plain");
             context.startActivity(Intent.createChooser(emailIntent, "Select App"));
