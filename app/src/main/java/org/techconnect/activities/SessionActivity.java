@@ -218,13 +218,7 @@ public class SessionActivity extends AppCompatActivity {
             case R.id.actionSend:
                 //Start an intent to send a message with question/response data
                 if (session.hasChart()) {
-                    String msg;
-                    if (session.isFinished()) {
-                        msg = "Hello\nI have finished the guide to repair this device.";
-                    } else {
-                        msg = "Hello,\nI am requesting help on this repair. Can you help?\n";
-                    }
-                    new ExportResponsesAsyncTask(this, msg).execute(session.getId());
+                    new ExportResponsesAsyncTask(this).execute(session.getId());
                 } else {
                     Toast.makeText(this, String.format("%s guide has been deleted. Cannot send completed steps", session.getDeviceName()), Toast.LENGTH_LONG).show();
                 }

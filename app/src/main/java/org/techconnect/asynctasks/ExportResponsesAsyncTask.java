@@ -20,10 +20,6 @@ public class ExportResponsesAsyncTask extends AsyncTask<String, Void, Integer> {
         this.context = context;
     }
 
-    public ExportResponsesAsyncTask(Context c, String msg) {
-        this.context = c;
-        this.message = msg;
-    }
 
     @Override
     protected Integer doInBackground(String... strings) {
@@ -31,7 +27,8 @@ public class ExportResponsesAsyncTask extends AsyncTask<String, Void, Integer> {
         String resp = message;
         if (resp == null) {
             if (strings.length > 0) {
-                resp = String.format("%s\n%s", context.getString(R.string.exportResponse_autofill), TCDatabaseHelper.get(context).writeResponsesToString(strings[0]));
+                String r = TCDatabaseHelper.get(context).writeResponsesToString(strings[0]);
+                resp = String.format("%s\n%s", context.getString(R.string.exportResponse_autofill), r);
             } else {
                 resp = context.getString(R.string.exportResponse_autofill);
             }

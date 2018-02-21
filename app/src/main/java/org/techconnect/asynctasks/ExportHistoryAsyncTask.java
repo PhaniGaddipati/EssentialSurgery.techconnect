@@ -27,6 +27,8 @@ import java.util.Locale;
 
 public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
 
+    private static final String TAG = "ExportHistoryAsyncTask";
+
     private final Context context;
     private final ProgressDialog dialog;
 
@@ -44,7 +46,7 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
 
     @Override
     protected Integer doInBackground(final String... args){
-
+        Log.d(TAG, "Exporting history");
         File exportDir = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
             exportDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "TechConnect");
@@ -63,7 +65,7 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
             String now = new SimpleDateFormat("MMddyyyy", Locale.getDefault()).format(new Date());
             File file = new File(exportDir, String.format("History_%s.csv",now));
             try {
-
+                Log.d(TAG, "Writing CSV");
                 file.createNewFile();
                 CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
 
@@ -78,6 +80,7 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
                 emailIntent.putExtra(Intent.EXTRA_TEXT,String.format("Hello,\nThis is my repair history on the date %s",now));
                 emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
                 emailIntent.setType("text/csv");
+                Log.d(TAG, "Done writing CSV to " + file.getAbsolutePath());
                 context.startActivity(Intent.createChooser(emailIntent, "Select App"));
                 return 1;
             } catch (IOException e) {
