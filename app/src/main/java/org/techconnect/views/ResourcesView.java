@@ -3,6 +3,7 @@ package org.techconnect.views;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import org.techconnect.R;
 import org.techconnect.activities.PDFActivity;
+import org.techconnect.activities.WebViewActivity;
 import org.techconnect.misc.ResourceHandler;
 import org.techconnect.misc.Utils;
 
@@ -49,6 +51,7 @@ public class ResourcesView extends LinearLayout {
         ButterKnife.bind(this);
 
     }
+
     public void setResources(List<String> resources) {
         this.resources = resources;
         updateViews();
@@ -79,6 +82,30 @@ public class ResourcesView extends LinearLayout {
     }
 
     private void openAttachment(String att) {
+        Log.d(ResourcesView.class.getName(), "Attachment clicked: " + att);
+        if (att.toLowerCase().endsWith("pdf")) {
+            openPDFAttachment(att);
+        } else {
+            openWebViewAttachment(att);
+        }
+
+    }
+
+    private void openWebViewAttachment(String att) {
+        Intent intent = new Intent(getContext(), WebViewActivity.class);
+        intent.putExtra(WebViewActivity.EXTRA_IS_FILE, true);
+        if (ResourceHandler.get(getContext()).hasStringResource(att)) {
+            intent.putExtra(WebViewActivity.EXTRA_FILE, getContext()
+                    .getFileStreamPath(ResourceHandler.get(getContext()).getStringResource(att))
+                    .getAbsolutePath());
+        } else {
+            Log.d(ResourcesView.class.getName(), "Resource not found: " + att);
+            intent.putExtra(WebViewActivity.EXTRA_FILE, "");
+        }
+        getContext().startActivity(intent);
+    }
+
+    private void openPDFAttachment(String att) {
         Intent intent = new Intent(getContext(), PDFActivity.class);
         intent.putExtra(PDFActivity.EXTRA_IS_FILE, true);
         if (ResourceHandler.get(getContext()).hasStringResource(att)) {
@@ -86,6 +113,7 @@ public class ResourcesView extends LinearLayout {
                     .getFileStreamPath(ResourceHandler.get(getContext()).getStringResource(att))
                     .getAbsolutePath());
         } else {
+            Log.d(ResourcesView.class.getName(), "Resource not found: " + att);
             intent.putExtra(PDFActivity.EXTRA_FILE, "");
         }
         getContext().startActivity(intent);

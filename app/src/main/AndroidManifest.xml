@@ -56,8 +56,8 @@
         <activity
             android:name=".activities.GuideActivity"
             android:label="@string/title_activity_guide"
-            android:windowSoftInputMode="adjustPan"
-            android:parentActivityName=".activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.techconnect.activities.MainActivity" />
@@ -94,7 +94,8 @@
             android:label="@string/help" />
         <activity
             android:name=".activities.EditSessionActivity"
-            android:label="Edit Session"/>
+            android:label="Edit Session" />
+        <activity android:name=".activities.WebViewActivity"></activity>
     </application>
 
 </manifest>
