@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     public static final int FRAGMENT_GUIDES = 0;
     public static final int FRAGMENT_HISTORY = 1;
     public static final int FRAGMENT_DIRECTORY = 2;
-    private static final int PERMISSIONS_REQUEST_READ_STORAGE = 1;
+    private static final int PERMISSIONS_REQUEST_STORAGE = 1;
     private static final String SHOWN_TUTORIAL = "org.techconnect.prefs.shownturotial";
     private static final String USER_LEARNED_DRAWER = "org.techconnect.prefs.shownturotial.learneddrawer";
     private static final String ASKED_PERMISSION = "org.techconnect.prefs.shownturotial.askedpermission";
@@ -195,15 +195,19 @@ public class MainActivity extends AppCompatActivity
         if (!checkPermissions()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        PERMISSIONS_REQUEST_READ_STORAGE);
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_STORAGE);
             }
         }
     }
 
     private boolean checkPermissions() {
         boolean havePermission = PackageManager.PERMISSION_GRANTED ==
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            havePermission = havePermission && PackageManager.PERMISSION_GRANTED ==
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
         if (havePermission) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED);
             permissionLayout.setVisibility(View.GONE);

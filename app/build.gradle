@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "org.techconnect"
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 23
         versionCode 11
         versionName "1.0"
     }

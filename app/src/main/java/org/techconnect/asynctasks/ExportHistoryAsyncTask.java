@@ -40,8 +40,8 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
 
     @Override
     protected void onPreExecute() {
-        this.dialog.setMessage("Exporting database...");
-        this.dialog.show();
+        //this.dialog.setMessage("Exporting database...");
+        //this.dialog.show();
     }
 
     @Override
@@ -49,12 +49,12 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
         Log.d(TAG, "Exporting history");
         File exportDir = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            exportDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "TechConnect");
+            exportDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "TechConnect");
         } else {
             exportDir = new File(Environment.getExternalStorageDirectory() + "/Documents/TechConnect");
-
         }
 
+        Log.d(TAG, "Exporting history path: " + exportDir.getAbsolutePath());
         boolean present = exportDir.exists();
         if (!present) {
             present = exportDir.mkdirs();
@@ -97,9 +97,9 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
     @Override
     protected void onPostExecute(final Integer success) {
 
-        if (this.dialog.isShowing()){
-            this.dialog.dismiss();
-        }
+        //if (this.dialog.isShowing()){
+//            this.dialog.dismiss();
+//        }
         if (success == 1){
             //Toast.makeText(this.context, "Export successful!", Toast.LENGTH_SHORT).show();
         }
