@@ -41,9 +41,9 @@
     <string name="tutorial_title_guides_home">Troubleshooting and Repair Guides</string>
     <string name="tutorial_msg_guides_home">Step through general troubleshooting guides to assist in the identification of problems and solutions for your broken equipment.</string>
 
-    <string name="tutorial_msg_history_home">Troubleshooting sessions can be saved to your phone to generate a history of all your work tickets completed in TechConnect.</string>
+    <string name="tutorial_msg_history_home">You can share data from the devices you have repaired using TechConnect via any messaging platform (including email and Whatsapp) for repair sessions.</string>
 
-    <string name="tutorial_msg_contact_home">Stuck on a repair? Ask an expert! Send us an email with the details of your broken equipiment and we will forward your question to a group of experts to help.</string>
+    <string name="tutorial_msg_contact_home">Stuck on a repair? Send an email or WhatsApp message (which automatically includes your progress through the steps of the repair guide) to a colleague to get help.</string>
 
     <string name="tutorial_title_final">You\'re Done!</string>
     <string name="tutorial_msg_final">Thank you for using TechConnect. We hope that we are able to help you in your repairs.</string>
@@ -181,7 +181,7 @@
     <string name="post_question_prompt">Select an active session to include with question (optional)</string>
     <string name="company_email">jhu.techconnect@gmail.com</string>
     <string name="help">Help</string>
-    <string name="contact_an_expert">Export Active Session</string>
+    <string name="contact_an_expert">Export Session</string>
     <string name="problem">Problem</string>
     <string name="solution">Solution</string>
     <string name="delete">Delete</string>
