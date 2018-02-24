@@ -181,13 +181,15 @@
     <string name="post_question_prompt">Select an active session to include with question (optional)</string>
     <string name="company_email">jhu.techconnect@gmail.com</string>
     <string name="help">Help</string>
-    <string name="contact_an_expert">Export Session</string>
+    <string name="contact_an_expert">Export Active Session</string>
     <string name="problem">Problem</string>
     <string name="solution">Solution</string>
     <string name="delete">Delete</string>
     <string name="export_history">Export History</string>
     <string name="exportResponse_autofill">Hello,\nI am requesting help on this repair. Can you help?\n</string>
+    <string name="exportResponse_autofill_finished">Hello,\nHere is my completed repair session\n</string>
     <string name="exportResponse_subject">Assistance Requested</string>
+    <string name="exportResponse_subject_finished">Compelted Repair Session</string>
     <string name="my_repair_history">My Repair History</string>
     <string name="anonymous">Anonymous</string>
     <string name="edit">Edit</string>
