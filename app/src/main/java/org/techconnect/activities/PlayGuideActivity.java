@@ -81,9 +81,6 @@ public class PlayGuideActivity extends AppCompatActivity implements
         flowView = (GuideFlowView) LayoutInflater.from(this).inflate(R.layout.guide_flow_view, flowContainer, false);
         flowContainer.addView(flowView);
         loadFlowchart();
-        if (flowChart != null) {
-            FirebaseEvents.logStartSession(this, flowChart);
-        }
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_SESSION)) {
             this.session = savedInstanceState.getParcelable(STATE_SESSION);
             flowView.setSession(session, this);
@@ -91,6 +88,9 @@ public class PlayGuideActivity extends AppCompatActivity implements
         if (session == null) {
             session = new Session(flowChart); //Make a session based on flowchart, but no info on the device yet
             flowView.setSession(session, this);
+        }
+        if (flowChart != null) {
+            FirebaseEvents.logStartSession(this, flowChart, session);
         }
         updateViews();
         startTime = System.currentTimeMillis();
@@ -178,7 +178,7 @@ public class PlayGuideActivity extends AppCompatActivity implements
 
     private void onEndSession() {
         if (flowChart != null) {
-            FirebaseEvents.logEndSessionEarly(PlayGuideActivity.this, flowChart);
+            FirebaseEvents.logEndSessionEarly(PlayGuideActivity.this, flowChart, session);
         }
         endSession();
     }
@@ -286,10 +286,10 @@ public class PlayGuideActivity extends AppCompatActivity implements
         //Set finished, set time finished
         session.setFinished(true);
         session.setFinishedDate(System.currentTimeMillis());
-        endSession();
         if (flowChart != null) {
-            FirebaseEvents.logSessionComplete(this, flowChart);
+            FirebaseEvents.logSessionComplete(this, flowChart, session);
         }
+        endSession();
     }
 
     private void endSession() {

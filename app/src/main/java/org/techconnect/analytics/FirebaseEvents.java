@@ -43,27 +43,37 @@ public class FirebaseEvents {
         FirebaseAnalytics.getInstance(c).logEvent(FirebaseAnalytics.Event.LOGIN, null);
     }
 
-    public static void logStartSession(Context c, FlowChart flowChart) {
+    public static void logStartSession(Context c, FlowChart flowChart, Session session) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, flowChart.getId());
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, flowChart.getName());
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
+        if (session != null) {
+            bundle.putString("tcsession_id", session.getId());
+        }
         FirebaseAnalytics.getInstance(c).logEvent("tcsession_start", bundle);
     }
 
-    public static void logEndSessionEarly(Context c, FlowChart flowChart) {
+    public static void logEndSessionEarly(Context c, FlowChart flowChart, Session session) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, flowChart.getId());
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, flowChart.getName());
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
+        if (session != null) {
+            bundle.putString("tcsession_id", session.getId());
+        }
         FirebaseAnalytics.getInstance(c).logEvent("tcsession_end_early", bundle);
     }
 
-    public static void logSessionComplete(Context c, FlowChart flowChart) {
+    public static void logSessionComplete(Context c, FlowChart flowChart, Session session) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, flowChart.getId());
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, flowChart.getName());
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
+        if (session != null) {
+            bundle.putString("tcsession_id", session.getId());
+            bundle.putLong("tcsession_duration", session.getFinishedDate() - session.getCreatedDate());
+        }
         FirebaseAnalytics.getInstance(c).logEvent("tcsession_complete", bundle);
     }
 
@@ -76,6 +86,7 @@ public class FirebaseEvents {
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, session.getFlowchart().getId());
             bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, session.getFlowchart().getName());
             bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
+            bundle.putString("tcsession_id", session.getId());
         }
         FirebaseAnalytics.getInstance(c).logEvent("tcsession_duration", bundle);
     }
@@ -89,6 +100,7 @@ public class FirebaseEvents {
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, session.getFlowchart().getId());
             bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, session.getFlowchart().getName());
             bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "guides");
+            bundle.putString("tcsession_id", session.getId());
         }
         FirebaseAnalytics.getInstance(c).logEvent("tcsession_contiguous_duration", bundle);
     }
@@ -137,6 +149,9 @@ public class FirebaseEvents {
     public static void logResumeSession(Context c, Session session) {
         Bundle fbBundle = new Bundle();
         fbBundle.putLong("tcsession_created", session.getCreatedDate());
+        if (session != null) {
+            fbBundle.putString("tcsession_id", session.getId());
+        }
         FirebaseAnalytics.getInstance(c).logEvent("tcsession_resumed", fbBundle);
     }
 
@@ -150,6 +165,9 @@ public class FirebaseEvents {
         fbBundle.putString("comments", comments);
         fbBundle.putString("experienceOpt", expFeedback);
         fbBundle.putString("contactOpt", contactFeedback);
+        if (session != null) {
+            fbBundle.putString("tcsession_id", session.getId());
+        }
         FirebaseAnalytics.getInstance(c).logEvent("guide_feedback", fbBundle);
     }
 }

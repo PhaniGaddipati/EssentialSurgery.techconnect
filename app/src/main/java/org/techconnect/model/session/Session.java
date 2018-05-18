@@ -8,6 +8,7 @@ import org.techconnect.model.FlowChart;
 import org.techconnect.model.GraphTraversal;
 import org.techconnect.model.Vertex;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +33,7 @@ public class Session implements Parcelable {
             return new Session[size];
         }
     };
-    private String id;
+    private String id = randomString(16);
     private FlowChart flowChart;
     private GraphTraversal traversal; //Step through the graph
 
@@ -297,5 +298,14 @@ public class Session implements Parcelable {
 
     public boolean hasChart() {
         return this.flowChart != null;
+    }
+
+    private static String randomString(int len) {
+        final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++)
+            sb.append(AB.charAt(random.nextInt(AB.length())));
+        return sb.toString();
     }
 }
