@@ -1070,36 +1070,61 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
      */
     public void writeRepairHistoryToFile(CSVWriter writer) {
         //Choose columns appropriately
-        String[] columnsSelect = {TCDatabaseContract.SessionEntry.DEVICE_NAME, TCDatabaseContract.SessionEntry.CREATED_DATE, TCDatabaseContract.SessionEntry.FINISHED_DATE, TCDatabaseContract.SessionEntry.MANUFACTURER,
-                TCDatabaseContract.SessionEntry.DEPARTMENT, TCDatabaseContract.SessionEntry.MODEL, TCDatabaseContract.SessionEntry.SERIAL, TCDatabaseContract.SessionEntry.PROBLEM,
-                TCDatabaseContract.SessionEntry.SOLUTION, TCDatabaseContract.SessionEntry.NOTES, TCDatabaseContract.SessionEntry.FINISHED};
+        String[] columnsSelect = {TCDatabaseContract.SessionEntry.DEVICE_NAME,
+                TCDatabaseContract.SessionEntry.CREATED_DATE,
+                TCDatabaseContract.SessionEntry.FINISHED_DATE,
+                TCDatabaseContract.SessionEntry.MANUFACTURER,
+                TCDatabaseContract.SessionEntry.DEPARTMENT,
+                TCDatabaseContract.SessionEntry.MODEL,
+                TCDatabaseContract.SessionEntry.SERIAL,
+                TCDatabaseContract.SessionEntry.PROBLEM,
+                TCDatabaseContract.SessionEntry.SOLUTION,
+                TCDatabaseContract.SessionEntry.NOTES,
+                TCDatabaseContract.SessionEntry.FINISHED};
 
         //Get Cursor representing data
         Cursor csvCursor = getReadableDatabase().query(TCDatabaseContract.SessionEntry.TABLE_NAME,
                 columnsSelect, null, null, null, null, null);
 
         //Set Column Titles for CSV
-        String[] columnTitle = {TCDatabaseContract.SessionEntry.DEVICE_NAME, TCDatabaseContract.SessionEntry.CREATED_DATE, TCDatabaseContract.SessionEntry.FINISHED_DATE, TCDatabaseContract.SessionEntry.MANUFACTURER,
-                TCDatabaseContract.SessionEntry.DEPARTMENT, TCDatabaseContract.SessionEntry.MODEL, TCDatabaseContract.SessionEntry.SERIAL, TCDatabaseContract.SessionEntry.PROBLEM,
-                TCDatabaseContract.SessionEntry.SOLUTION, TCDatabaseContract.SessionEntry.NOTES};
+        String[] columnTitle = {TCDatabaseContract.SessionEntry.DEVICE_NAME,
+                TCDatabaseContract.SessionEntry.CREATED_DATE,
+                TCDatabaseContract.SessionEntry.FINISHED_DATE,
+                TCDatabaseContract.SessionEntry.MANUFACTURER,
+                TCDatabaseContract.SessionEntry.DEPARTMENT,
+                TCDatabaseContract.SessionEntry.MODEL,
+                TCDatabaseContract.SessionEntry.SERIAL,
+                TCDatabaseContract.SessionEntry.PROBLEM,
+                TCDatabaseContract.SessionEntry.SOLUTION,
+                TCDatabaseContract.SessionEntry.NOTES};
 
         //Start writing the table
         writer.writeNext(columnTitle);
         while (csvCursor.moveToNext()) {
             //Get Device Name from Flowchart_ID
-            String device = csvCursor.getString(0);
+            String device = csvCursor.getString(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.DEVICE_NAME));
             //Convert Date to simple DateFormat based on Locale
-            String dateCreated = SimpleDateFormat.getDateInstance().format(csvCursor.getLong(1));
+            String dateCreated = SimpleDateFormat.getDateInstance().format(
+                    csvCursor.getLong(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.CREATED_DATE)));
             String dateFinished;
             //Determine Date Finished
-            if (csvCursor.getString(8).equals("1")) {
-                dateFinished = SimpleDateFormat.getDateInstance().format(csvCursor.getLong(2));
+            if (csvCursor.getInt(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.FINISHED)) > 0) {
+                dateFinished = SimpleDateFormat.getDateInstance().format(csvCursor.getLong(
+                        csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.FINISHED_DATE)));
             } else {
                 dateFinished = "In Progress";
             }
 
-            String[] entry = {device, dateCreated, dateFinished, csvCursor.getString(3), csvCursor.getString(4), csvCursor.getString(5), csvCursor.getString(6),
-                    csvCursor.getString(7), csvCursor.getString(8), csvCursor.getString(9)};
+            String[] entry = {device,
+                    dateCreated,
+                    dateFinished,
+                    csvCursor.getString(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.MANUFACTURER)),
+                    csvCursor.getString(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.DEPARTMENT)),
+                    csvCursor.getString(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.MODEL)),
+                    csvCursor.getString(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.SERIAL)),
+                    csvCursor.getString(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.PROBLEM)),
+                    csvCursor.getString(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.SOLUTION)),
+                    csvCursor.getString(csvCursor.getColumnIndex(TCDatabaseContract.SessionEntry.NOTES))};
             writer.writeNext(entry);
         }
 
