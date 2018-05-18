@@ -20,7 +20,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by doranwalsten on 1/17/17.
@@ -70,8 +69,10 @@ public class ExportHistoryAsyncTask extends AsyncTask<String, Void, Integer> {
 
         if (present) {
 
-            String now = new SimpleDateFormat("ddMMyyyy", Locale.getDefault()).format(new Date());
-            File file = new File(exportDir, String.format("History_%s.csv", now));
+            Date nowDate = new Date();
+            String now = SimpleDateFormat.getDateInstance().format(nowDate);
+            File file = new File(exportDir, String.format("History_%s.csv",
+                    new SimpleDateFormat("ddMMyyyy").format(nowDate)));
             try {
                 Log.d(TAG, "Writing CSV");
                 file.createNewFile();
