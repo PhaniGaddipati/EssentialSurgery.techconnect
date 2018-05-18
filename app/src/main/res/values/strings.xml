@@ -189,7 +189,7 @@
     <string name="exportResponse_autofill">Hello,\nI am requesting help on this repair. Can you help?\n</string>
     <string name="exportResponse_autofill_finished">Hello,\nHere is my completed repair session\n</string>
     <string name="exportResponse_subject">Assistance Requested</string>
-    <string name="exportResponse_subject_finished">Compelted Repair Session</string>
+    <string name="exportResponse_subject_finished">Completed Repair Session</string>
     <string name="my_repair_history">My Repair History</string>
     <string name="anonymous">Anonymous</string>
     <string name="edit">Edit</string>
