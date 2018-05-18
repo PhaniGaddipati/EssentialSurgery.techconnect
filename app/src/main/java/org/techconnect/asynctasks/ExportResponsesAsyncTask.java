@@ -2,6 +2,7 @@ package org.techconnect.asynctasks;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 
 import org.techconnect.R;
@@ -41,9 +42,15 @@ public class ExportResponsesAsyncTask extends AsyncTask<String, Void, Integer> {
 
         if (resp != null) {
             //Send email based on String arguments
-            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+            String uriText =
+                    "mailto:" + Uri.encode(context.getString(R.string.techassist_email)) +
+                            "?subject=" + Uri.encode(context.getString(sub_id)) +
+                            "&body=" + Uri.encode(resp);
+
+            Intent emailIntent = new Intent(Intent.ACTION_SEND, Uri.parse(uriText));
             emailIntent.putExtra(Intent.EXTRA_TEXT, resp);
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(sub_id));
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{context.getString(R.string.techassist_email)});
             emailIntent.setType("text/plain");
             context.startActivity(Intent.createChooser(emailIntent, "Select App"));
             return 1;
