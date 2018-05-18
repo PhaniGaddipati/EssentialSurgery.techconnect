@@ -17,6 +17,7 @@ import org.techconnect.model.User;
 import org.techconnect.network.TCNetworkHelper;
 import org.techconnect.sql.TCDatabaseHelper;
 
+import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -176,18 +177,16 @@ public class TCService extends IntentService {
         Log.d(this.getClass().getName(), "Attempting to download " + fileUrl);
         String fileName = "tc" + (int) Math.round(Integer.MAX_VALUE * Math.random());
         HttpURLConnection connection = (HttpURLConnection) new URL(fileUrl.replace(" ", "%20")).openConnection();
-
+        connection.connect();
         FileOutputStream fileOutputStream = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
-        InputStream inputStream = connection.getInputStream();
+        InputStream inputStream = new BufferedInputStream(connection.getInputStream(), 8192);
 
         int readBytes;
-        byte buffer[] = new byte[1024];
-        if (inputStream != null) {
-            while ((readBytes = inputStream.read(buffer)) > -1) {
-                fileOutputStream.write(buffer, 0, readBytes);
-            }
-            inputStream.close();
+        byte buffer[] = new byte[4096];
+        while ((readBytes = inputStream.read(buffer)) > -1) {
+            fileOutputStream.write(buffer, 0, readBytes);
         }
+        inputStream.close();
 
         connection.disconnect();
         fileOutputStream.flush();
