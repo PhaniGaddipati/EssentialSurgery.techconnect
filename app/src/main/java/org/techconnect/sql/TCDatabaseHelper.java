@@ -398,12 +398,12 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteChart(FlowChart flowChart) {
         deleteChartsGraph(flowChart);
-        deleteComments(flowChart.getId(),Comment.PARENT_TYPE_CHART);
+        deleteComments(flowChart.getId(), Comment.PARENT_TYPE_CHART);
         String selection = TCDatabaseContract.ChartEntry.ID + " = ?";
         String selectionArgs[] = {flowChart.getId()};
         int result = getWritableDatabase().delete(TCDatabaseContract.ChartEntry.TABLE_NAME, selection, selectionArgs);
         if (result == 0) {
-            Log.d(getClass().toString(),"Did not delete chart");
+            Log.d(getClass().toString(), "Did not delete chart");
         }
     }
 
@@ -542,25 +542,25 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             String firstVertex = c.getString(c.getColumnIndexOrThrow(TCDatabaseContract.GraphEntry.FIRST_VERTEX));
             List<Edge> edges = getEdges(id); //Get the list of edges associated with the graph
             //Iterate over the edges in the graph, build the vertex hashmap
-            HashMap<String,Edge> E = new HashMap<>();
+            HashMap<String, Edge> E = new HashMap<>();
             HashMap<String, Vertex> V = new HashMap<>();
 
-            for (Edge e: edges) {
-                E.put(e.getId(),e);
+            for (Edge e : edges) {
+                E.put(e.getId(), e);
                 if (!V.containsKey(e.getInV())) {
                     //Get vertex out of SQL, put in map
                     Vertex v = getVertex(e.getInV());
                     v.addInEdge(e.getId());
-                    V.put(e.getInV(),v);
+                    V.put(e.getInV(), v);
                 } else {
                     V.get(e.getInV()).addInEdge(e.getId());
                 }
 
-                if(!V.containsKey(e.getOutV())) {
+                if (!V.containsKey(e.getOutV())) {
                     //get the vertex out of SQL, put in map
                     Vertex v = getVertex(e.getOutV());
                     v.addOutEdge(e.getId());
-                    V.put(e.getOutV(),v);
+                    V.put(e.getOutV(), v);
                 } else {
                     V.get(e.getOutV()).addOutEdge(e.getId());
                 }
@@ -1099,7 +1099,7 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             }
 
             String[] entry = {device, dateCreated, dateFinished, csvCursor.getString(3), csvCursor.getString(4), csvCursor.getString(5), csvCursor.getString(6),
-                    csvCursor.getString(7), csvCursor.getString(8), csvCursor.getString(9) };
+                    csvCursor.getString(7), csvCursor.getString(8), csvCursor.getString(9)};
             writer.writeNext(entry);
         }
 
@@ -1108,6 +1108,7 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Used to convert the response history of a session
+     *
      * @return
      */
     public String writeResponsesToString(String id) {
@@ -1117,30 +1118,50 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         String response = "";
         String totalResponse;
         //Make String description of the session
-        String header = String.format("Device: %s\nManufacturer: %s\nModel #: %s\nSerial #: %s\nNotes: %s\n",
-                s.getDeviceName(),s.getManufacturer(),s.getModelNumber(),s.getSerialNumber(),s.getNotes());
+        String header;
+        if (s.getProblem() == null ||
+                s.getSolution() == null ||
+                s.getProblem().trim().equals("") ||
+                s.getSolution().trim().equals("")) {
+            header = String.format("Device: %s\n" +
+                            "Manufacturer: %s\n" +
+                            "Model #: %s\n" +
+                            "Serial #: %s\n" +
+                            "Notes: %s\n",
+                    s.getDeviceName(), s.getManufacturer(), s.getModelNumber(),
+                    s.getSerialNumber(), s.getNotes());
+        } else {
+            header = String.format("Device: %s\n" +
+                            "Manufacturer: %s\n" +
+                            "Model #: %s\n" +
+                            "Serial #: %s\n" +
+                            "Problem: %s\n" +
+                            "Solution: %s\n" +
+                            "Notes: %s\n",
+                    s.getDeviceName(), s.getManufacturer(), s.getModelNumber(),
+                    s.getSerialNumber(), s.getProblem(), s.getSolution(), s.getNotes());
+        }
         List<String> questions = s.getHistory();
         List<String> answers = s.getOptionHistory();
         //Paused session
         if (questions.size() != answers.size()) {
-            Log.d(getClass().toString(),String.format("Unequal size of question and answers: %d, %d",questions.size(), answers.size()));
+            Log.d(getClass().toString(), String.format("Unequal size of question and answers: %d, %d", questions.size(), answers.size()));
             for (int i = 0; i < questions.size() - 1; i++) {
-                response = response + String.format("%s ... %s\n",g.getVertex(questions.get(i)).getName(), answers.get(i));
+                response = response + String.format("%s ... %s\n", g.getVertex(questions.get(i)).getName(), answers.get(i));
             }
             response = response + g.getVertex(questions.get(questions.size() - 1)).getName();
-            Log.d(getClass().toString(),response);
-            totalResponse = String.format("%s\nSteps Completed\n\n%s",header, response);
+            Log.d(getClass().toString(), response);
+            totalResponse = String.format("%s\nSteps Completed\n\n%s", header, response);
             return totalResponse;
         } else { //Complete session
             for (int i = 0; i < questions.size(); i++) {
-                response = response + String.format("%s ... %s\n",g.getVertex(questions.get(i)).getName(), answers.get(i));
+                response = response + String.format("%s ... %s\n", g.getVertex(questions.get(i)).getName(), answers.get(i));
             }
-            totalResponse = String.format("%s\nSteps Completed\n\n%s",header, response);
-            Log.d(getClass().toString(),totalResponse);
+            totalResponse = String.format("%s\nSteps Completed\n\n%s", header, response);
+            Log.d(getClass().toString(), totalResponse);
             return totalResponse;
         }
     }
-
 
 
     public Session getSessionFromCursor(Cursor c) {
@@ -1192,8 +1213,8 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
         sessionContentValues.put(TCDatabaseContract.SessionEntry.DEPARTMENT, s.getDepartment());
         sessionContentValues.put(TCDatabaseContract.SessionEntry.MODEL, s.getModelNumber());
         sessionContentValues.put(TCDatabaseContract.SessionEntry.SERIAL, s.getSerialNumber());
-        sessionContentValues.put(TCDatabaseContract.SessionEntry.PROBLEM,s.getProblem());
-        sessionContentValues.put(TCDatabaseContract.SessionEntry.SOLUTION,s.getSolution());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.PROBLEM, s.getProblem());
+        sessionContentValues.put(TCDatabaseContract.SessionEntry.SOLUTION, s.getSolution());
         sessionContentValues.put(TCDatabaseContract.SessionEntry.NOTES, s.getNotes());
 
         //Generate a comma separated list of strings for the two history entries
