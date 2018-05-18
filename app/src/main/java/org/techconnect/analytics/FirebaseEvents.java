@@ -91,9 +91,7 @@ public class FirebaseEvents {
         FirebaseAnalytics.getInstance(c).logEvent("tcsession_duration", bundle);
     }
 
-    public static void logContiguousSessionDuration(Context c, Session session, long startTime) {
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
+    public static void logContiguousSessionDuration(Context c, Session session, long duration) {
         Bundle bundle = new Bundle();
         bundle.putLong(FirebaseAnalytics.Param.VALUE, duration);
         if (session.getFlowchart() != null) {
