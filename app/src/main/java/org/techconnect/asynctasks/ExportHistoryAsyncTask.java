@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,7 +26,7 @@ import java.util.Locale;
  * Created by doranwalsten on 1/17/17.
  */
 
-public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
+public class ExportHistoryAsyncTask extends AsyncTask<String, Void, Integer> {
 
     private static final String TAG = "ExportHistoryAsyncTask";
 
@@ -45,7 +46,7 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
     }
 
     @Override
-    protected Integer doInBackground(final String... args){
+    protected Integer doInBackground(final String... args) {
         Log.d(TAG, "Exporting history");
         File exportDir = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
@@ -58,12 +59,19 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
         boolean present = exportDir.exists();
         if (!present) {
             present = exportDir.mkdirs();
+            if (!present) {
+                exportDir = new File(Environment.getDataDirectory().toString());
+                if (!exportDir.exists()) {
+                    exportDir.mkdirs();
+                }
+                present = exportDir.exists();
+            }
         }
 
         if (present) {
 
             String now = new SimpleDateFormat("MMddyyyy", Locale.getDefault()).format(new Date());
-            File file = new File(exportDir, String.format("History_%s.csv",now));
+            File file = new File(exportDir, String.format("History_%s.csv", now));
             try {
                 Log.d(TAG, "Writing CSV");
                 file.createNewFile();
@@ -74,11 +82,16 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
                 //close the writer
                 csvWrite.close();
 
+                Uri photoURI = FileProvider.getUriForFile(context,
+                        context.getApplicationContext().getPackageName() + ".org.techconnect.provider", file);
+
                 //Send email based on String arguments
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT,context.getString(R.string.my_repair_history));
-                emailIntent.putExtra(Intent.EXTRA_TEXT,String.format("Hello,\nThis is my repair history on the date %s",now));
-                emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.my_repair_history));
+                emailIntent.putExtra(Intent.EXTRA_TEXT, String.format("Hello,\nThis is my repair history on the date %s", now));
+                emailIntent.putExtra(Intent.EXTRA_STREAM, photoURI);
+                emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
                 emailIntent.setType("text/csv");
                 Log.d(TAG, "Done writing CSV to " + file.getAbsolutePath());
                 context.startActivity(Intent.createChooser(emailIntent, "Select App"));
@@ -89,7 +102,7 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
             }
         } else {
             //Failure to make directory
-            Log.e("Export History","Fail to make file directory");
+            Log.e("Export History", "Fail to make file directory");
             return 0;
         }
     }
@@ -100,10 +113,9 @@ public class ExportHistoryAsyncTask extends AsyncTask<String,Void,Integer> {
         //if (this.dialog.isShowing()){
 //            this.dialog.dismiss();
 //        }
-        if (success == 1){
+        if (success == 1) {
             //Toast.makeText(this.context, "Export successful!", Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else {
             Toast.makeText(this.context, "Export failed!", Toast.LENGTH_SHORT).show();
         }
     }
