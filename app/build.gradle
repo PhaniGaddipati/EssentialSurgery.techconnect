@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "org.techconnect"
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 27
         versionCode 13
         versionName "1.0"
     }
@@ -37,12 +37,12 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.android.support:support-v4:26.1.0'
-    compile 'com.google.firebase:firebase-core:11.8.0'
-    compile 'com.google.firebase:firebase-crash:11.8.0'
+    compile 'com.google.firebase:firebase-core:15.0.2'
+    compile 'com.google.firebase:firebase-crash:15.0.2'
     compile 'com.opencsv:opencsv:3.8'
     compile 'me.xdrop:fuzzywuzzy:1.1.6'
     compile 'com.sothree.slidinguppanel:library:3.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0'
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'
