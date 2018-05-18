@@ -29,6 +29,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
         <activity
             android:name=".activities.ImageViewActivity"
             android:label="Image"
@@ -86,10 +87,6 @@
             android:label="@string/select_skill" />
         <activity android:name=".activities.SessionListActivity" />
         <activity android:name=".activities.CatalogActivity" />
-        <activity
-            android:name=".activities.ContactAnExpertActivity"
-            android:label="@string/contact_an_expert"
-            android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -105,6 +102,11 @@
             android:name=".activities.EditSessionActivity"
             android:label="Edit Session" />
         <activity android:name=".activities.WebViewActivity"></activity>
+        <activity
+            android:name=".activities.ContactAnExpertActivity"
+            android:label="@string/title_export_active"
+            android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustPan" />
     </application>
 
 </manifest>

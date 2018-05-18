@@ -88,6 +88,7 @@
     <string name="no_guides">No guides have been downloaded yet</string>
     <string name="download_guides">Download More Guides</string>
     <string name="title_activity_guide">Your Guide</string>
+    <string name="title_export_active">Export</string>
     <string name="description">Description</string>
     <string name="type">Type</string>
     <string name="score">Score</string>
