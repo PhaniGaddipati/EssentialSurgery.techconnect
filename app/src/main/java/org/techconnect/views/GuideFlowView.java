@@ -92,9 +92,17 @@ public class GuideFlowView extends LinearLayout implements View.OnClickListener 
 
         //tabContainer.removeAllViews();
         //commentsResourcesTabbedView = (CommentsResourcesTabbedView) LayoutInflater.from(getContext())
-                //.inflate(R.layout.comments_resources_tabbed_view, tabContainer, false);
+        //.inflate(R.layout.comments_resources_tabbed_view, tabContainer, false);
         commentsResourcesTabbedView.setItems(curr_step, curr_step.getResources(),
                 session.getFlowchart().getId());
+        if (curr_step.getResources().size() > 0) {
+            slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            slidingCommentLayout.setPanelHeight(getResources().getDimensionPixelSize(R.dimen.panel_height));
+        } else {
+            slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+            slidingCommentLayout.setPanelHeight(0);
+        }
+        //tabContainer.setVisibility(curr_step.getResources().size() > 0 ? View.VISIBLE : View.GONE);
         //tabContainer.addView(commentsResourcesTabbedView);
 
     }
@@ -222,7 +230,7 @@ public class GuideFlowView extends LinearLayout implements View.OnClickListener 
                 } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
                     controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
                 } else if (newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
-                    switch(previousState) {
+                    switch (previousState) {
                         case COLLAPSED:
                             controlButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
                             break;

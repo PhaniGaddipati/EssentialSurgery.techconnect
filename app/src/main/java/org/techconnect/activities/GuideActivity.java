@@ -227,6 +227,13 @@ public class GuideActivity extends AppCompatActivity implements SwipeRefreshLayo
         }
         descriptionTextView.setText(flowChart.getDescription());
         commentsResourcesTabbedView.setItems(flowChart, flowChart.getResources(), flowChart.getId());
+        if (flowChart.getResources().size() > 0) {
+            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            slidingUpPanelLayout.setPanelHeight(getResources().getDimensionPixelSize(R.dimen.panel_height));
+        } else {
+            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+            slidingUpPanelLayout.setPanelHeight(0);
+        }
         updateHeaderImage();
     }
 
