@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -1090,11 +1089,11 @@ public class TCDatabaseHelper extends SQLiteOpenHelper {
             //Get Device Name from Flowchart_ID
             String device = csvCursor.getString(0);
             //Convert Date to simple DateFormat based on Locale
-            String dateCreated = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(csvCursor.getLong(1));
+            String dateCreated = SimpleDateFormat.getDateInstance().format(csvCursor.getLong(1));
             String dateFinished;
             //Determine Date Finished
             if (csvCursor.getString(8).equals("1")) {
-                dateFinished = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(csvCursor.getLong(2));
+                dateFinished = SimpleDateFormat.getDateInstance().format(csvCursor.getLong(2));
             } else {
                 dateFinished = "In Progress";
             }

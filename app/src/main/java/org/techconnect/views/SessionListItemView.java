@@ -93,7 +93,7 @@ public class SessionListItemView extends LinearLayout implements Checkable {
             }
 
 
-            dateTextView.setText(new SimpleDateFormat("MM/dd/yyyy, HH:mm:ss").format(new Date(session.getCreatedDate())));
+            dateTextView.setText(SimpleDateFormat.getDateTimeInstance().format(new Date(session.getCreatedDate())));
 
             if (!checklist) {
                 devImageView.setVisibility(View.VISIBLE);

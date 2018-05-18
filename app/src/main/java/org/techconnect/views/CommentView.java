@@ -10,6 +10,7 @@ import org.techconnect.R;
 import org.techconnect.misc.Utils;
 import org.techconnect.model.Comment;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -31,7 +32,7 @@ public class CommentView extends LinearLayout {
     @Bind(R.id.comment_textView)
     TextView commentTextView;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
+    private DateFormat dateFormat = SimpleDateFormat.getDateInstance();
     private Comment comment = null;
 
     public CommentView(Context context) {

@@ -70,7 +70,7 @@ public class ExportHistoryAsyncTask extends AsyncTask<String, Void, Integer> {
 
         if (present) {
 
-            String now = new SimpleDateFormat("MMddyyyy", Locale.getDefault()).format(new Date());
+            String now = new SimpleDateFormat("ddMMyyyy", Locale.getDefault()).format(new Date());
             File file = new File(exportDir, String.format("History_%s.csv", now));
             try {
                 Log.d(TAG, "Writing CSV");

@@ -99,7 +99,7 @@ public class SessionActivity extends AppCompatActivity {
             manufacturerTextView.setText(session.getManufacturer());
             modelTextView.setText(session.getModelNumber());
             serialTextView.setText(session.getSerialNumber());
-            dateTextView.setText(new SimpleDateFormat("MM/dd/yyyy, HH:mm:ss").format(new Date(session.getCreatedDate())));
+            dateTextView.setText(SimpleDateFormat.getDateTimeInstance().format(new Date(session.getCreatedDate())));
             deviceTextView.setText(session.getDeviceName());
             problemTextView.setText(session.getProblem());
             solutionTextView.setText(session.getSolution());
@@ -117,7 +117,7 @@ public class SessionActivity extends AppCompatActivity {
                 //deleteButton.setVisibility(View.GONE);//Don't want them to delete completed sessions
                 finishedDateHeader.setVisibility(View.VISIBLE);
                 finishedDateTextView.setVisibility(View.VISIBLE);
-                finishedDateTextView.setText(new SimpleDateFormat("MM/dd/yyyy, HH:mm:ss").format(new Date(session.getFinishedDate())));
+                finishedDateTextView.setText(SimpleDateFormat.getDateTimeInstance().format(new Date(session.getFinishedDate())));
                 stepHeader.setVisibility(View.GONE);
                 stepTextView.setVisibility(View.GONE);
                 //Update the height of the scrollview to fill the screen
