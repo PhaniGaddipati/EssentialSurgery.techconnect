@@ -123,7 +123,11 @@ public class FirebaseEvents {
         FirebaseAnalytics.getInstance(c).logEvent("register_fail", null);
     }
 
-    public static void logRegistrationSuccess(Context c) {
+    public static void logRegistrationSuccess(Context c, User user) {
+        Bundle bundle = new Bundle();
+        if (user != null && user.getOrganization() != null) {
+            bundle.putString("user_org", user.getOrganization());
+        }
         FirebaseAnalytics.getInstance(c).logEvent(FirebaseAnalytics.Event.SIGN_UP, null);
     }
 

@@ -116,7 +116,7 @@ public class RegisterActivity extends AppCompatActivity {
                         FirebaseEvents.logRegistrationFailed(RegisterActivity.this);
                     } else {
                         // Store the user, probably need it later
-                        FirebaseEvents.logRegistrationSuccess(RegisterActivity.this);
+                        FirebaseEvents.logRegistrationSuccess(RegisterActivity.this, user);
                         TCDatabaseHelper.get(RegisterActivity.this).upsertUser(user);
                         Intent intent = new Intent();
                         intent.putExtra(RESULT_REGISTERED_EMAIL, user.getEmail());
