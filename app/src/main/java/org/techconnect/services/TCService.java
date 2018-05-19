@@ -1,9 +1,11 @@
 package org.techconnect.services;
 
 import android.app.IntentService;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.v4.app.NotificationCompat;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,6 +41,7 @@ public class TCService extends IntentService {
 
     private NotificationManager notificationManager;
     private TCNetworkHelper TCNetworkHelper;
+    private static Set<String> downloadingChartIds = new HashSet<>();
 
     public TCService() {
         super("TechConnectService");
@@ -52,7 +56,12 @@ public class TCService extends IntentService {
         intent.setAction(LOAD_CHARTS);
         intent.putExtra(PARAM_IDS, chartIds);
         intent.putExtra(PARAM_RESULT_RECIEVER, resultReceiver);
+        downloadingChartIds.addAll(Arrays.asList(chartIds));
         context.startService(intent);
+    }
+
+    public static boolean getChartLoading(String chartId) {
+        return downloadingChartIds.contains(chartId);
     }
 
     @Override
@@ -89,7 +98,14 @@ public class TCService extends IntentService {
                         .bigText(getString(R.string.downloading_resources)))
                 .setContentText(getString(R.string.downloading_resources))
                 .setSmallIcon(R.drawable.tech_connect_app_icon)
+                .setChannelId("tc")
                 .setOngoing(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("tc",
+                    "TechConnect",
+                    NotificationManager.IMPORTANCE_LOW);
+            notificationManager.createNotificationChannel(channel);
+        }
         notificationManager.notify(LOAD_CHARTS_NOTIFICATION, notificationBuilder.build());
         Bundle bundle = new Bundle();
         int resultCode;
@@ -116,6 +132,7 @@ public class TCService extends IntentService {
             e.printStackTrace();
         }
         notificationManager.cancel(LOAD_CHARTS_NOTIFICATION);
+        downloadingChartIds.removeAll(Arrays.asList(chartIds));
         resultReceiver.send(resultCode, bundle);
     }
 

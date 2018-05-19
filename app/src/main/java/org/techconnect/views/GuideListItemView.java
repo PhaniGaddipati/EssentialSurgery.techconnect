@@ -84,7 +84,11 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
             descriptionTextView.setText(flowChart.getDescription());
             if (showDownload) {
                 downloadImageView.setVisibility(VISIBLE);
-                if (TCDatabaseHelper.get(getContext()).getChart(flowChart.getId()) == null) {
+                if (TCService.getChartLoading(flowChart.getId())) {
+                    downloadImageView.setOnClickListener(null);
+                    downloadImageView.setVisibility(GONE);
+                    downloadProgressBar.setVisibility(VISIBLE);
+                } else if (TCDatabaseHelper.get(getContext()).getChart(flowChart.getId()) == null) {
                     downloadImageView.setImageResource(R.drawable.ic_file_download_black_48dp);
                 } else {
                     downloadImageView.setOnClickListener(null);
@@ -138,9 +142,6 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
     }
 
     private void onDownload() {
-        downloadImageView.setOnClickListener(null);
-        downloadImageView.setVisibility(GONE);
-        downloadProgressBar.setVisibility(VISIBLE);
         TCService.startLoadCharts(getContext(), new String[]{flowChart.getId()}, new ResultReceiver(new Handler()) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -148,5 +149,6 @@ public class GuideListItemView extends LinearLayout implements View.OnClickListe
                 updateViews();
             }
         });
+        updateViews();
     }
 }
