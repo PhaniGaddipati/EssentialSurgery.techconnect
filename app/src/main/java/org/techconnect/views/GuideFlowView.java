@@ -96,10 +96,8 @@ public class GuideFlowView extends LinearLayout implements View.OnClickListener 
         commentsResourcesTabbedView.setItems(curr_step, curr_step.getResources(),
                 session.getFlowchart().getId());
         if (curr_step.getResources().size() > 0) {
-            slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             slidingCommentLayout.setPanelHeight(getResources().getDimensionPixelSize(R.dimen.panel_height));
         } else {
-            slidingCommentLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
             slidingCommentLayout.setPanelHeight(0);
         }
         //tabContainer.setVisibility(curr_step.getResources().size() > 0 ? View.VISIBLE : View.GONE);
