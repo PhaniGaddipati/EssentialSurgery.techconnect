@@ -8,7 +8,7 @@ android {
         applicationId "org.techconnect"
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 14
+        versionCode 15
         versionName "1.0"
     }
     buildTypes {
